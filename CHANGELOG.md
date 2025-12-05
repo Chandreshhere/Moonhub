@@ -108,14 +108,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Upcoming Releases
 
-### [2.1.0] - Q1 2025 (Planned)
+### [2.1.0] - Q2 2025 (Planned)
 - Mobile Application (iOS/Android)
 - Advanced AI/ML Features
 - Multi-Currency Support
 - Barcode Scanning Integration
 - Voice Command Interface
 
-### [3.0.0] - Q3 2025 (Planned)
+### [3.0.0] - Q4 2025 (Planned)
 - IoT Integration
 - Blockchain Supply Chain
 - Advanced Automation (RPA)

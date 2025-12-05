@@ -51,7 +51,7 @@ def open_browser():
 def print_startup_info():
     """Print startup information"""
     print("🌙" + "=" * 60)
-    print("🌙 MoonHub Inventory Management System")
+    print("🌙 MoonHub Inventory Management System - 2025")
     print("🌙 Production-Ready E-commerce Solution")
     print("🌙" + "=" * 60)
     print(f"🚀 Starting development server...")
@@ -125,7 +125,7 @@ def main():
         print(f"\n❌ Server error: {e}")
         print("📝 Check logs for more details")
     finally:
-        print("🌙 Thank you for using MoonHub!")
+        print("🌙 Thank you for using MoonHub 2025!")
 
 if __name__ == '__main__':
     main()

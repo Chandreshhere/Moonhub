@@ -250,7 +250,7 @@ POST /api/sync-platform
 ### Analytics & Reporting API
 ```python
 # Get sales report
-GET /api/reports/sales?start_date=2024-01-01&end_date=2024-01-31
+GET /api/reports/sales?start_date=2025-01-01&end_date=2025-01-31
 
 # Get inventory valuation
 GET /api/reports/inventory-valuation
@@ -473,7 +473,7 @@ fail2ban-client status
 
 ## 🚀 Roadmap & Future Features
 
-### Version 2.0 (Q2 2024)
+### Version 2.1 (Q2 2025)
 - **Mobile Application** - iOS and Android apps
 - **Advanced AI** - Machine learning demand forecasting
 - **Multi-Currency** - Global marketplace support
@@ -481,7 +481,7 @@ fail2ban-client status
 - **Voice Commands** - Alexa and Google Assistant integration
 - **Blockchain Integration** - Supply chain transparency
 
-### Version 3.0 (Q4 2024)
+### Version 3.0 (Q4 2025)
 - **IoT Integration** - Smart warehouse sensors
 - **Augmented Reality** - AR-powered inventory visualization
 - **Advanced Automation** - Robotic process automation
@@ -511,7 +511,7 @@ fail2ban-client status
 
 **🌙 MoonHub Inventory Management System**  
 **Version**: 2.0.0 Production Ready  
-**Last Updated**: December 2024  
+**Last Updated**: January 2025  
 **License**: MIT License  
 **Website**: https://moonhub.com  
 **Support**: help@moonhub.com  

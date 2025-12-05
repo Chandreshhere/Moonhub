@@ -285,13 +285,13 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🎯 Roadmap
 
-### Version 2.1 (Q1 2025)
+### Version 2.1 (Q2 2025)
 - [ ] Mobile Application (iOS/Android)
 - [ ] Advanced AI/ML Features
 - [ ] Multi-Currency Support
 - [ ] Barcode Scanning
 
-### Version 3.0 (Q3 2025)
+### Version 3.0 (Q4 2025)
 - [ ] IoT Integration
 - [ ] Blockchain Supply Chain
 - [ ] Advanced Automation

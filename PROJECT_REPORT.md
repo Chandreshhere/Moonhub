@@ -4,7 +4,7 @@
 
 **Project Name**: MoonHub Inventory Management System  
 **Version**: 2.0.0 Production Ready  
-**Development Period**: December 2024  
+**Development Period**: January 2025  
 **Technology Stack**: Python, Flask, SQLite, HTML5, CSS3, JavaScript  
 **Target Users**: E-commerce sellers, Multi-platform retailers  
 
