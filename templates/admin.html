@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoonHub - Admin Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #ffffff 0%, #f8f9fa 25%, #e9ecef 50%, #6f42c1 75%, #4a1a5a 100%);
+            --card-gradient: linear-gradient(145deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.8) 100%);
+            --purple-glow: 0 0 30px rgba(111, 66, 193, 0.3);
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --accent-purple: #6f42c1;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--primary-gradient);
+            min-height: 100vh;
+            color: var(--text-primary);
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(111, 66, 193, 0.2);
+            box-shadow: 0 2px 10px rgba(111, 66, 193, 0.1);
+        }
+
+        .card {
+            background: var(--card-gradient);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(111, 66, 193, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(111, 66, 193, 0.2);
+        }
+
+        .card-header {
+            background: rgba(111, 66, 193, 0.1);
+            border-bottom: 1px solid rgba(111, 66, 193, 0.2);
+            border-radius: 20px 20px 0 0 !important;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--accent-purple), #8b5cf6);
+            border: none;
+            border-radius: 12px;
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #10b981, #059669);
+            border: none;
+            border-radius: 12px;
+        }
+
+        .btn-warning {
+            background: linear-gradient(45deg, #f59e0b, #d97706);
+            border: none;
+            border-radius: 12px;
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #ef4444, #dc2626);
+            border: none;
+            border-radius: 12px;
+        }
+
+        .platform-card {
+            text-align: center;
+            padding: 2rem;
+            height: 100%;
+        }
+
+        .platform-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .status-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        .table {
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .table th {
+            background: var(--accent-purple);
+            color: white;
+            border: none;
+        }
+
+        /* Custom Popup Styles */
+        .custom-popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .custom-popup-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .custom-popup {
+            background: var(--card-gradient);
+            border: 1px solid rgba(111, 66, 193, 0.2);
+            border-radius: 24px;
+            padding: 2.5rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(111, 66, 193, 0.3);
+            transform: scale(0.8) translateY(50px);
+            transition: all 0.3s ease;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .custom-popup-overlay.show .custom-popup {
+            transform: scale(1) translateY(0);
+        }
+
+        .popup-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, var(--accent-purple), #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .popup-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .popup-message {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .popup-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .popup-btn {
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .popup-btn-primary {
+            background: linear-gradient(45deg, var(--accent-purple), #8b5cf6);
+            color: white;
+        }
+
+        .popup-btn-secondary {
+            background: rgba(111, 66, 193, 0.1);
+            color: var(--accent-purple);
+            border: 1px solid rgba(111, 66, 193, 0.3);
+        }
+
+        .popup-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(111, 66, 193, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="/dashboard">
+                <i class="fas fa-moon"></i> MoonHub Admin
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/dashboard">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Admin Overview -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 class="display-5 fw-bold mb-2" style="background: linear-gradient(45deg, #6f42c1, #4a1a5a); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                    Admin Control Panel
+                </h1>
+                <p class="lead text-secondary">Manage stores, users, and system settings</p>
+            </div>
+        </div>
+
+        <!-- Connected Stores -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-store"></i> Connected Stores</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row" id="platformsContainer">
+                            <div class="col-md-4 mb-3">
+                                <div class="card platform-card position-relative">
+                                    <span class="badge bg-secondary status-badge" id="amazon-status">Disconnected</span>
+                                    <i class="fab fa-amazon platform-icon text-warning"></i>
+                                    <h5>Amazon</h5>
+                                    <p class="text-muted">Seller Central</p>
+                                    <button class="btn btn-warning btn-sm" onclick="manageStore('amazon')">Manage</button>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="card platform-card position-relative">
+                                    <span class="badge bg-secondary status-badge" id="flipkart-status">Disconnected</span>
+                                    <i class="fas fa-shopping-cart platform-icon text-primary"></i>
+                                    <h5>Flipkart</h5>
+                                    <p class="text-muted">Seller Hub</p>
+                                    <button class="btn btn-primary btn-sm" onclick="manageStore('flipkart')">Manage</button>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="card platform-card position-relative">
+                                    <span class="badge bg-secondary status-badge" id="meesho-status">Disconnected</span>
+                                    <i class="fas fa-store platform-icon text-danger"></i>
+                                    <h5>Meesho</h5>
+                                    <p class="text-muted">Supplier Panel</p>
+                                    <button class="btn btn-danger btn-sm" onclick="manageStore('meesho')">Manage</button>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="card platform-card position-relative">
+                                    <span class="badge bg-secondary status-badge" id="shopify-status">Disconnected</span>
+                                    <i class="fab fa-shopify platform-icon text-success"></i>
+                                    <h5>Shopify</h5>
+                                    <p class="text-muted">Online Store</p>
+                                    <button class="btn btn-success btn-sm" onclick="manageStore('shopify')">Manage</button>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="card platform-card position-relative">
+                                    <span class="badge bg-secondary status-badge" id="ebay-status">Disconnected</span>
+                                    <i class="fab fa-ebay platform-icon text-info"></i>
+                                    <h5>eBay</h5>
+                                    <p class="text-muted">Seller Account</p>
+                                    <button class="btn btn-info btn-sm" onclick="manageStore('ebay')">Manage</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center mt-3">
+                            <button class="btn btn-success" onclick="redirectToPlatforms()">
+                                <i class="fas fa-plus"></i> Connect New Store
+                            </button>
+                            <button class="btn btn-primary ms-2" onclick="syncAllPlatforms()">
+                                <i class="fas fa-sync"></i> Sync All Stores
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Settings -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-cog"></i> System Settings</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="list-group list-group-flush">
+                            <a href="#" class="list-group-item list-group-item-action" onclick="showEmailSettings()">
+                                <i class="fas fa-envelope text-primary"></i> Email Configuration
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action" onclick="showBackupSettings()">
+                                <i class="fas fa-database text-success"></i> Backup Settings
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action" onclick="showNotificationSettings()">
+                                <i class="fas fa-bell text-warning"></i> Notifications
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action" onclick="showSecuritySettings()">
+                                <i class="fas fa-shield-alt text-danger"></i> Security
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-users"></i> User Management</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="list-group list-group-flush">
+                            <a href="#" class="list-group-item list-group-item-action" onclick="showUsers()">
+                                <i class="fas fa-user text-primary"></i> Manage Users
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action" onclick="showRoles()">
+                                <i class="fas fa-user-tag text-success"></i> Roles & Permissions
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action" onclick="showActivity()">
+                                <i class="fas fa-history text-warning"></i> Activity Logs
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action" onclick="addUser()">
+                                <i class="fas fa-user-plus text-info"></i> Add New User
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Status -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-chart-line"></i> System Status</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3 text-center">
+                                <h3 class="text-success">Online</h3>
+                                <p>System Status</p>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <h3 class="text-primary" id="connectedStoresCount">0</h3>
+                                <p>Connected Stores</p>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <h3 class="text-warning">2 mins</h3>
+                                <p>Last Sync</p>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <h3 class="text-info">99.9%</h3>
+                                <p>Uptime</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-clock"></i> Recent Activity</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Action</th>
+                                        <th>User</th>
+                                        <th>Details</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>2 mins ago</td>
+                                        <td>Inventory Sync</td>
+                                        <td>System</td>
+                                        <td>Amazon store synchronized</td>
+                                        <td><span class="badge bg-success">Success</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>5 mins ago</td>
+                                        <td>Product Added</td>
+                                        <td>Admin</td>
+                                        <td>SKU011 - Wireless Mouse</td>
+                                        <td><span class="badge bg-success">Success</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>10 mins ago</td>
+                                        <td>Stock Update</td>
+                                        <td>Admin</td>
+                                        <td>SKU001 stock updated</td>
+                                        <td><span class="badge bg-success">Success</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Popup Overlay -->
+    <div class="custom-popup-overlay" id="customPopup">
+        <div class="custom-popup">
+            <i class="popup-icon" id="popupIcon"></i>
+            <h3 class="popup-title" id="popupTitle"></h3>
+            <p class="popup-message" id="popupMessage"></p>
+            <div class="popup-buttons" id="popupButtons"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function showCustomPopup(icon, title, message, buttons) {
+            document.getElementById('popupIcon').className = `popup-icon ${icon}`;
+            document.getElementById('popupTitle').textContent = title;
+            document.getElementById('popupMessage').textContent = message;
+            
+            const buttonsContainer = document.getElementById('popupButtons');
+            buttonsContainer.innerHTML = '';
+            
+            buttons.forEach(button => {
+                const btn = document.createElement('button');
+                btn.className = `popup-btn ${button.class}`;
+                btn.textContent = button.text;
+                btn.onclick = button.action;
+                buttonsContainer.appendChild(btn);
+            });
+            
+            document.getElementById('customPopup').classList.add('show');
+        }
+
+        function hideCustomPopup() {
+            document.getElementById('customPopup').classList.remove('show');
+        }
+
+        function manageStore(platform) {
+            const statusElement = document.getElementById(`${platform}-status`);
+            const isConnected = statusElement && statusElement.textContent === 'Connected';
+            
+            if (isConnected) {
+                showCustomPopup(
+                    'fas fa-store',
+                    `Manage ${platform.charAt(0).toUpperCase() + platform.slice(1)} Store`,
+                    `Configure API settings, sync preferences, and manage your ${platform} store integration.`,
+                    [
+                        {
+                            text: 'Sync Now',
+                            class: 'popup-btn-primary',
+                            action: () => {
+                                hideCustomPopup();
+                                syncPlatform(platform);
+                            }
+                        },
+                        {
+                            text: 'Disconnect',
+                            class: 'popup-btn-secondary',
+                            action: () => {
+                                hideCustomPopup();
+                                disconnectPlatform(platform);
+                            }
+                        }
+                    ]
+                );
+            } else {
+                showCustomPopup(
+                    'fas fa-plug',
+                    `Connect ${platform.charAt(0).toUpperCase() + platform.slice(1)} Store`,
+                    `This platform is not connected. Would you like to set up the integration?`,
+                    [
+                        {
+                            text: 'Connect Now',
+                            class: 'popup-btn-primary',
+                            action: () => {
+                                hideCustomPopup();
+                                window.location.href = '/platforms';
+                            }
+                        },
+                        {
+                            text: 'Cancel',
+                            class: 'popup-btn-secondary',
+                            action: hideCustomPopup
+                        }
+                    ]
+                );
+            }
+        }
+
+        function syncPlatform(platform) {
+            fetch('/api/sync-platform', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({platform: platform})
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.error) {
+                    showCustomPopup(
+                        'fas fa-exclamation-triangle',
+                        'Sync Failed',
+                        result.error,
+                        [{
+                            text: 'OK',
+                            class: 'popup-btn-primary',
+                            action: hideCustomPopup
+                        }]
+                    );
+                } else {
+                    showCustomPopup(
+                        'fas fa-check-circle',
+                        'Sync Successful',
+                        result.message,
+                        [{
+                            text: 'OK',
+                            class: 'popup-btn-primary',
+                            action: hideCustomPopup
+                        }]
+                    );
+                }
+            });
+        }
+
+        function disconnectPlatform(platform) {
+            showCustomPopup(
+                'fas fa-unlink',
+                'Disconnect Platform',
+                `Are you sure you want to disconnect ${platform}? This will stop automatic synchronization.`,
+                [
+                    {
+                        text: 'Disconnect',
+                        class: 'popup-btn-primary',
+                        action: () => {
+                            hideCustomPopup();
+                            // Update status to disconnected
+                            const statusElement = document.getElementById(`${platform}-status`);
+                            statusElement.textContent = 'Disconnected';
+                            statusElement.className = 'badge bg-secondary status-badge';
+                            loadPlatformStatus(); // Refresh count
+                        }
+                    },
+                    {
+                        text: 'Cancel',
+                        class: 'popup-btn-secondary',
+                        action: hideCustomPopup
+                    }
+                ]
+            );
+        }
+
+        function redirectToPlatforms() {
+            window.location.href = '/platforms';
+        }
+
+        function syncAllPlatforms() {
+            showCustomPopup(
+                'fas fa-sync',
+                'Sync All Platforms',
+                'This will synchronize inventory data across all connected platforms. This may take a few minutes.',
+                [
+                    {
+                        text: 'Start Sync',
+                        class: 'popup-btn-primary',
+                        action: () => {
+                            hideCustomPopup();
+                            performSyncAll();
+                        }
+                    },
+                    {
+                        text: 'Cancel',
+                        class: 'popup-btn-secondary',
+                        action: hideCustomPopup
+                    }
+                ]
+            );
+        }
+
+        function performSyncAll() {
+            const platforms = ['amazon', 'flipkart', 'meesho', 'shopify', 'ebay'];
+            let syncPromises = [];
+            
+            platforms.forEach(platform => {
+                const statusElement = document.getElementById(`${platform}-status`);
+                if (statusElement && statusElement.textContent === 'Connected') {
+                    syncPromises.push(
+                        fetch('/api/sync-platform', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({platform: platform})
+                        })
+                    );
+                }
+            });
+            
+            if (syncPromises.length > 0) {
+                Promise.all(syncPromises)
+                    .then(() => {
+                        showCustomPopup(
+                            'fas fa-check-circle',
+                            'Sync Complete',
+                            'All connected platforms have been synchronized successfully.',
+                            [{
+                                text: 'OK',
+                                class: 'popup-btn-primary',
+                                action: hideCustomPopup
+                            }]
+                        );
+                    })
+                    .catch(() => {
+                        showCustomPopup(
+                            'fas fa-exclamation-triangle',
+                            'Sync Error',
+                            'Some platforms failed to sync. Please check individual platform connections.',
+                            [{
+                                text: 'OK',
+                                class: 'popup-btn-primary',
+                                action: hideCustomPopup
+                            }]
+                        );
+                    });
+            } else {
+                showCustomPopup(
+                    'fas fa-info-circle',
+                    'No Connected Platforms',
+                    'Please connect at least one platform before attempting to sync.',
+                    [{
+                        text: 'OK',
+                        class: 'popup-btn-primary',
+                        action: hideCustomPopup
+                    }]
+                );
+            }
+        }
+
+        function showEmailSettings() {
+            showCustomPopup(
+                'fas fa-envelope',
+                'Email Configuration',
+                'Configure SMTP settings, notification preferences, and email templates for automated alerts.',
+                [
+                    {
+                        text: 'Configure',
+                        class: 'popup-btn-primary',
+                        action: () => {
+                            hideCustomPopup();
+                            // Add email settings functionality
+                        }
+                    },
+                    {
+                        text: 'Cancel',
+                        class: 'popup-btn-secondary',
+                        action: hideCustomPopup
+                    }
+                ]
+            );
+        }
+
+        function showBackupSettings() {
+            showCustomPopup(
+                'fas fa-database',
+                'Backup Settings',
+                'Configure automatic backup schedule, retention policies, and storage locations for your data.',
+                [
+                    {
+                        text: 'Configure',
+                        class: 'popup-btn-primary',
+                        action: () => {
+                            hideCustomPopup();
+                            // Add backup settings functionality
+                        }
+                    },
+                    {
+                        text: 'Cancel',
+                        class: 'popup-btn-secondary',
+                        action: hideCustomPopup
+                    }
+                ]
+            );
+        }
+
+        function showNotificationSettings() {
+            showCustomPopup(
+                'fas fa-bell',
+                'Notification Settings',
+                'Set up alerts, thresholds, and notification recipients for inventory and system events.',
+                [
+                    {
+                        text: 'Configure',
+                        class: 'popup-btn-primary',
+                        action: () => {
+                            hideCustomPopup();
+                            // Add notification settings functionality
+                        }
+                    },
+                    {
+                        text: 'Cancel',
+                        class: 'popup-btn-secondary',
+                        action: hideCustomPopup
+                    }
+                ]
+            );
+        }
+
+        function showSecuritySettings() {
+            showCustomPopup(
+                'fas fa-shield-alt',
+                'Security Settings',
+                'Configure password policies, two-factor authentication, API key management, and access controls.',
+                [
+                    {
+                        text: 'Configure',
+                        class: 'popup-btn-primary',
+                        action: () => {
+                            hideCustomPopup();
+                            // Add security settings functionality
+                        }
+                    },
+                    {
+                        text: 'Cancel',
+                        class: 'popup-btn-secondary',
+                        action: hideCustomPopup
+                    }
+                ]
+            );
+        }
+
+        function showUsers() {
+            showCustomPopup(
+                'fas fa-users',
+                'User Management',
+                'View, edit, and manage user accounts, permissions, and access levels for your team.',
+                [
+                    {
+                        text: 'Manage Users',
+                        class: 'popup-btn-primary',
+                        action: () => {
+                            hideCustomPopup();
+                            // Add user management functionality
+                        }
+                    },
+                    {
+                        text: 'Cancel',
+                        class: 'popup-btn-secondary',
+                        action: hideCustomPopup
+                    }
+                ]
+            );
+        }
+
+        function showRoles() {
+            showCustomPopup(
+                'fas fa-user-tag',
+                'Roles & Permissions',
+                'Define access levels, capabilities, and permissions for different user roles in your organization.',
+                [
+                    {
+                        text: 'Manage Roles',
+                        class: 'popup-btn-primary',
+                        action: () => {
+                            hideCustomPopup();
+                            // Add roles management functionality
+                        }
+                    },
+                    {
+                        text: 'Cancel',
+                        class: 'popup-btn-secondary',
+                        action: hideCustomPopup
+                    }
+                ]
+            );
+        }
+
+        function showActivity() {
+            showCustomPopup(
+                'fas fa-history',
+                'Activity Logs',
+                'View detailed system and user activity history, including login attempts and system changes.',
+                [
+                    {
+                        text: 'View Logs',
+                        class: 'popup-btn-primary',
+                        action: () => {
+                            hideCustomPopup();
+                            // Add activity logs functionality
+                        }
+                    },
+                    {
+                        text: 'Cancel',
+                        class: 'popup-btn-secondary',
+                        action: hideCustomPopup
+                    }
+                ]
+            );
+        }
+
+        function addUser() {
+            showCustomPopup(
+                'fas fa-user-plus',
+                'Add New User',
+                'Create a new user account with appropriate permissions and access levels for your team member.',
+                [
+                    {
+                        text: 'Create User',
+                        class: 'popup-btn-primary',
+                        action: () => {
+                            hideCustomPopup();
+                            // Add user creation functionality
+                        }
+                    },
+                    {
+                        text: 'Cancel',
+                        class: 'popup-btn-secondary',
+                        action: hideCustomPopup
+                    }
+                ]
+            );
+        }
+
+        function loadPlatformStatus() {
+            fetch('/api/platform-status')
+                .then(response => response.json())
+                .then(data => {
+                    let connectedCount = 0;
+                    Object.entries(data).forEach(([platform, config]) => {
+                        const statusElement = document.getElementById(`${platform}-status`);
+                        if (statusElement) {
+                            if (config.status === 'connected') {
+                                statusElement.textContent = 'Connected';
+                                statusElement.className = 'badge bg-success status-badge';
+                                connectedCount++;
+                            } else {
+                                statusElement.textContent = 'Disconnected';
+                                statusElement.className = 'badge bg-secondary status-badge';
+                            }
+                        }
+                    });
+                    document.getElementById('connectedStoresCount').textContent = connectedCount;
+                })
+                .catch(error => {
+                    console.error('Error loading platform status:', error);
+                });
+        }
+
+        // Load platform status on page load
+        document.addEventListener('DOMContentLoaded', loadPlatformStatus);
+
+        // Close popup when clicking outside
+        document.getElementById('customPopup').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideCustomPopup();
+            }
+        });
+    </script>
+</body>
+</html>

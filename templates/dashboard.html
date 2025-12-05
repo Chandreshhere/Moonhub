@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoonHub Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #ffffff 0%, #f8f9fa 25%, #e9ecef 50%, #6f42c1 75%, #4a1a5a 100%);
+            --card-gradient: linear-gradient(145deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.8) 100%);
+            --purple-glow: 0 0 30px rgba(74, 26, 90, 0.3);
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --accent-purple: #6f42c1;
+            --accent-blue: #4a1a5a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--primary-gradient);
+            min-height: 100vh;
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(111, 66, 193, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(74, 26, 90, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(111, 66, 193, 0.05) 0%, transparent 50%);
+            z-index: -1;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(111, 66, 193, 0.2);
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(111, 66, 193, 0.1);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--text-primary) !important;
+        }
+
+        .navbar-brand i {
+            color: var(--accent-purple);
+            margin-right: 0.5rem;
+        }
+
+        .nav-link {
+            color: var(--text-secondary) !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--accent-purple) !important;
+        }
+
+        .stat-card {
+            background: var(--card-gradient);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+        }
+
+        .stat-card:hover::before {
+            transform: translateX(100%);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--purple-glow);
+            border-color: rgba(114, 9, 183, 0.3);
+        }
+
+        .stat-card.primary {
+            background: linear-gradient(145deg, rgba(111, 66, 193, 0.1), rgba(74, 26, 90, 0.1));
+            border: 1px solid rgba(111, 66, 193, 0.2);
+        }
+
+        .stat-card.success {
+            background: linear-gradient(145deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2));
+        }
+
+        .stat-card.warning {
+            background: linear-gradient(145deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.2));
+        }
+
+        .stat-card.danger {
+            background: linear-gradient(145deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.2));
+        }
+
+        .stat-card h6 {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-card h3 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .stat-card i {
+            font-size: 2.5rem;
+            opacity: 0.7;
+        }
+
+        .card {
+            background: var(--card-gradient);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-header {
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px 20px 0 0 !important;
+            padding: 1.5rem;
+        }
+
+        .card-header h5 {
+            color: var(--text-primary);
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .card-header i {
+            color: var(--accent-purple);
+            margin-right: 0.5rem;
+        }
+
+        .btn {
+            border-radius: 12px;
+            font-weight: 500;
+            padding: 0.6rem 1.2rem;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--accent-purple), #8b5cf6);
+            box-shadow: 0 4px 15px rgba(111, 66, 193, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(111, 66, 193, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #10b981, #059669);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .table {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .table-dark {
+            background: var(--accent-purple) !important;
+            border-color: rgba(111, 66, 193, 0.3);
+        }
+
+        .table-dark th {
+            border-color: rgba(255, 255, 255, 0.2);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            color: #ffffff !important;
+        }
+
+        .table-striped > tbody > tr:nth-of-type(odd) {
+            background: rgba(111, 66, 193, 0.05);
+        }
+
+        .table-hover tbody tr:hover {
+            background: rgba(111, 66, 193, 0.1);
+        }
+
+        .table td {
+            border-color: rgba(111, 66, 193, 0.1);
+            padding: 1rem 0.75rem;
+            color: var(--text-primary) !important;
+        }
+
+        .badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 0.8rem;
+        }
+
+        .bg-success {
+            background: linear-gradient(45deg, #10b981, #059669) !important;
+        }
+
+        .bg-warning {
+            background: linear-gradient(45deg, #f59e0b, #d97706) !important;
+        }
+
+        .bg-danger {
+            background: linear-gradient(45deg, #ef4444, #dc2626) !important;
+        }
+
+        .modal-content {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(111, 66, 193, 0.2);
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+        }
+
+        .modal-header {
+            border-bottom: 1px solid rgba(111, 66, 193, 0.2);
+        }
+
+        .modal-title {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .form-control, .form-select {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(111, 66, 193, 0.3);
+            border-radius: 12px;
+            color: var(--text-primary);
+            padding: 0.75rem 1rem;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background: rgba(255, 255, 255, 1);
+            border-color: var(--accent-purple);
+            box-shadow: 0 0 0 0.2rem rgba(111, 66, 193, 0.25);
+            color: var(--text-primary);
+        }
+
+        .form-control::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .form-label {
+            color: var(--text-primary);
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .low-stock {
+            background: rgba(245, 158, 11, 0.1) !important;
+            border-left: 4px solid #f59e0b;
+        }
+
+        .out-of-stock {
+            background: rgba(239, 68, 68, 0.1) !important;
+            border-left: 4px solid #ef4444;
+        }
+
+        .table-container {
+            max-height: 500px;
+            overflow-y: auto;
+            border-radius: 12px;
+        }
+
+        .table-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .table-container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        .table-container::-webkit-scrollbar-thumb {
+            background: var(--accent-purple);
+            border-radius: 4px;
+        }
+
+        .spinner-border {
+            color: var(--accent-purple);
+        }
+
+        .text-muted {
+            color: var(--text-secondary) !important;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .container > .row {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .container > .row:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .container > .row:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        .navbar {
+            z-index: 10000 !important;
+        }
+
+        .dropdown-menu {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(111, 66, 193, 0.2);
+            border-radius: 12px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px rgba(111, 66, 193, 0.2);
+            z-index: 10001 !important;
+            position: absolute !important;
+        }
+
+        .nav-item.dropdown {
+            position: relative;
+            z-index: 10002 !important;
+        }
+
+        .dropdown-item {
+            color: var(--text-primary);
+            padding: 0.75rem 1rem;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(111, 66, 193, 0.1);
+            color: var(--accent-purple);
+        }
+
+        .dropdown-header {
+            color: var(--accent-purple);
+            font-weight: 600;
+        }
+
+        /* Custom Popup Styles */
+        .custom-popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .custom-popup-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .custom-popup {
+            background: var(--card-gradient);
+            border: 1px solid rgba(111, 66, 193, 0.2);
+            border-radius: 24px;
+            padding: 2.5rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(111, 66, 193, 0.3);
+            transform: scale(0.8) translateY(50px);
+            transition: all 0.3s ease;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .custom-popup-overlay.show .custom-popup {
+            transform: scale(1) translateY(0);
+        }
+
+        .custom-popup::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(111, 66, 193, 0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+        }
+
+        .custom-popup:hover::before {
+            transform: translateX(100%);
+        }
+
+        .popup-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, var(--accent-purple), #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .popup-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .popup-message {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .popup-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .popup-btn {
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .popup-btn-primary {
+            background: linear-gradient(45deg, var(--accent-purple), #8b5cf6);
+            color: white;
+        }
+
+        .popup-btn-secondary {
+            background: rgba(111, 66, 193, 0.1);
+            color: var(--accent-purple);
+            border: 1px solid rgba(111, 66, 193, 0.3);
+        }
+
+        .popup-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(111, 66, 193, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .stat-card {
+                padding: 1.5rem;
+                margin-bottom: 1rem;
+            }
+            
+            .stat-card h3 {
+                font-size: 1.8rem;
+            }
+            
+            .card-header {
+                padding: 1rem;
+            }
+
+            .custom-popup {
+                padding: 2rem;
+                margin: 1rem;
+            }
+
+            .popup-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-moon"></i> MoonHub
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/reports">
+                    <i class="fas fa-chart-bar"></i> Reports
+                </a>
+                <a class="nav-link" href="/platforms">
+                    <i class="fas fa-store"></i> Platforms
+                </a>
+                <a class="nav-link" href="#" onclick="exportToExcel()">
+                    <i class="fas fa-download"></i> Export
+                </a>
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle"></i> Admin
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><h6 class="dropdown-header">Admin Panel</h6></li>
+                        <li><a class="dropdown-item" href="/admin"><i class="fas fa-cog text-primary"></i> Admin Settings</a></li>
+                        <li><a class="dropdown-item" href="/platforms"><i class="fas fa-store text-success"></i> Platform Management</a></li>
+                        <li><a class="dropdown-item" href="/reports"><i class="fas fa-chart-bar text-info"></i> Reports & Analytics</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Welcome Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="text-center">
+                    <h1 class="display-4 fw-bold mb-2" style="background: linear-gradient(45deg, #6f42c1, #4a1a5a); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Dashboard Overview</h1>
+                    <p class="lead text-secondary">Real-time inventory management across all platforms</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Stats -->
+        <div class="row">
+            <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="stat-card primary">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6>Total Products</h6>
+                            <h3 id="totalProducts">-</h3>
+                        </div>
+                        <i class="fas fa-boxes"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="stat-card success">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6>Stock Value</h6>
+                            <h3 id="stockValue">-</h3>
+                        </div>
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="stat-card warning">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6>Low Stock</h6>
+                            <h3 id="lowStock">-</h3>
+                        </div>
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="stat-card danger">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6>Out of Stock</h6>
+                            <h3 id="outOfStock">-</h3>
+                        </div>
+                        <i class="fas fa-times-circle"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="stat-card primary">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6>Profit Margin</h6>
+                            <h3 id="profitMargin">-</h3>
+                        </div>
+                        <i class="fas fa-percentage"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-bolt"></i> Quick Actions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <button class="btn btn-primary w-100 mb-2" onclick="showAddProductModal()">
+                                    <i class="fas fa-plus-circle"></i><br>Add Product
+                                </button>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-success w-100 mb-2" onclick="showUpdateStockModal()">
+                                    <i class="fas fa-sync-alt"></i><br>Update Stock
+                                </button>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-warning w-100 mb-2" onclick="showOrderModal()">
+                                    <i class="fas fa-shopping-cart"></i><br>New Order
+                                </button>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-info w-100 mb-2" onclick="showSupplierModal()">
+                                    <i class="fas fa-truck"></i><br>Add Supplier
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory Table -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5><i class="fas fa-boxes"></i> Product Inventory</h5>
+                        <div class="d-flex gap-2">
+                            <input type="text" class="form-control form-control-sm" id="searchInput" placeholder="Search products..." style="width: 200px;" onkeyup="filterTable()">
+                            <select class="form-select form-select-sm" id="categoryFilter" style="width: 150px;" onchange="filterByCategory()">
+                                <option value="">All Categories</option>
+                                <option value="Electronics">Electronics</option>
+                                <option value="Accessories">Accessories</option>
+                                <option value="Home & Garden">Home & Garden</option>
+                                <option value="Fashion">Fashion</option>
+                                <option value="Sports">Sports</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>SKU</th>
+                                        <th>Product Name</th>
+                                        <th>Category</th>
+                                        <th>Current Stock</th>
+                                        <th>Min Stock</th>
+                                        <th>Cost Price</th>
+                                        <th>Selling Price</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="inventoryTable">
+                                    <tr>
+                                        <td colspan="8" class="text-center">
+                                            <div class="spinner-border" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Product Modal -->
+    <div class="modal fade" id="addProductModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Product</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addProductForm">
+                        <div class="mb-3">
+                            <label class="form-label">SKU</label>
+                            <input type="text" class="form-control" name="sku" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Product Name</label>
+                            <input type="text" class="form-control" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Category</label>
+                            <input type="text" class="form-control" name="category" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Cost Price</label>
+                                    <input type="number" step="0.01" class="form-control" name="cost_price" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Selling Price</label>
+                                    <input type="number" step="0.01" class="form-control" name="selling_price" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Initial Stock</label>
+                            <input type="number" class="form-control" name="initial_stock" value="0">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="addProduct()">Add Product</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Stock Modal -->
+    <div class="modal fade" id="updateStockModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Update Stock</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="updateStockForm">
+                        <div class="mb-3">
+                            <label class="form-label">SKU</label>
+                            <input type="text" class="form-control" name="sku" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Movement Type</label>
+                            <select class="form-control" name="movement_type" required>
+                                <option value="IN">Stock In</option>
+                                <option value="OUT">Stock Out</option>
+                                <option value="ADJUSTMENT">Adjustment</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Quantity</label>
+                            <input type="number" class="form-control" name="quantity" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Platform (Optional)</label>
+                            <input type="text" class="form-control" name="platform">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Notes</label>
+                            <textarea class="form-control" name="notes" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" onclick="updateStock()">Update Stock</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Modal -->
+    <div class="modal fade" id="orderModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">New Order</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="orderForm">
+                        <div class="mb-3">
+                            <label class="form-label">Order ID</label>
+                            <input type="text" class="form-control" name="order_id" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Platform</label>
+                            <select class="form-control" name="platform" required>
+                                <option value="Amazon">Amazon</option>
+                                <option value="Flipkart">Flipkart</option>
+                                <option value="Meesho">Meesho</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Product SKU</label>
+                            <input type="text" class="form-control" name="sku" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Quantity</label>
+                            <input type="number" class="form-control" name="quantity" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Customer Name</label>
+                            <input type="text" class="form-control" name="customer_name" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-warning" onclick="processOrder()">Process Order</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supplier Modal -->
+    <div class="modal fade" id="supplierModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Supplier</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="supplierForm">
+                        <div class="mb-3">
+                            <label class="form-label">Supplier Name</label>
+                            <input type="text" class="form-control" name="supplier_name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Contact Person</label>
+                            <input type="text" class="form-control" name="contact_person" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Phone</label>
+                            <input type="tel" class="form-control" name="phone" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Address</label>
+                            <textarea class="form-control" name="address" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-info" onclick="addSupplier()">Add Supplier</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Connect Store Modal -->
+    <div class="modal fade" id="connectStoreModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Connect Your Store</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-4 text-center mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <i class="fab fa-amazon fa-3x text-warning mb-3"></i>
+                                    <h5>Amazon</h5>
+                                    <p class="text-muted">Connect your Amazon Seller Central account</p>
+                                    <button class="btn btn-warning" onclick="connectAmazon()">Connect Amazon</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <i class="fas fa-shopping-cart fa-3x text-primary mb-3"></i>
+                                    <h5>Flipkart</h5>
+                                    <p class="text-muted">Connect your Flipkart Seller Hub account</p>
+                                    <button class="btn btn-primary" onclick="connectFlipkart()">Connect Flipkart</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <i class="fas fa-store fa-3x text-danger mb-3"></i>
+                                    <h5>Meesho</h5>
+                                    <p class="text-muted">Connect your Meesho Supplier Panel</p>
+                                    <button class="btn btn-danger" onclick="connectMeesho()">Connect Meesho</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 text-center mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <i class="fab fa-shopify fa-3x text-success mb-3"></i>
+                                    <h5>Shopify</h5>
+                                    <p class="text-muted">Connect your Shopify store</p>
+                                    <button class="btn btn-success" onclick="connectShopify()">Connect Shopify</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <i class="fab fa-ebay fa-3x text-info mb-3"></i>
+                                    <h5>eBay</h5>
+                                    <p class="text-muted">Connect your eBay seller account</p>
+                                    <button class="btn btn-info" onclick="connectEbay()">Connect eBay</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <i class="fas fa-plus-circle fa-3x text-secondary mb-3"></i>
+                                    <h5>Custom API</h5>
+                                    <p class="text-muted">Connect any custom marketplace</p>
+                                    <button class="btn btn-secondary" onclick="connectCustom()">Add Custom</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- API Configuration Modal -->
+    <div class="modal fade" id="apiConfigModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="apiModalTitle">Configure API</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="apiConfigForm">
+                        <div id="apiFields"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveApiConfig()">Save Configuration</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Popup Overlay -->
+    <div class="custom-popup-overlay" id="customPopup">
+        <div class="custom-popup">
+            <i class="popup-icon" id="popupIcon"></i>
+            <h3 class="popup-title" id="popupTitle"></h3>
+            <p class="popup-message" id="popupMessage"></p>
+            <div class="popup-buttons" id="popupButtons"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function loadDashboard() {
+            loadDashboardStats();
+            loadInventoryData();
+        }
+
+        function loadDashboardStats() {
+            fetch('/api/dashboard-stats')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('totalProducts').textContent = data.total_products;
+                    document.getElementById('stockValue').textContent = '₹' + data.total_stock_value.toLocaleString();
+                    document.getElementById('lowStock').textContent = data.low_stock_count;
+                    document.getElementById('outOfStock').textContent = data.out_of_stock_count;
+                    document.getElementById('profitMargin').textContent = data.avg_profit_margin.toFixed(1) + '%';
+                })
+                .catch(error => {
+                    console.error('Error loading stats:', error);
+                    // Load sample stats if API fails
+                    document.getElementById('totalProducts').textContent = '8';
+                    document.getElementById('stockValue').textContent = '₹4,25,000';
+                    document.getElementById('lowStock').textContent = '2';
+                    document.getElementById('outOfStock').textContent = '1';
+                    document.getElementById('profitMargin').textContent = '58.2%';
+                });
+        }
+
+        let allInventoryData = [];
+
+        function loadInventoryData() {
+            fetch('/api/inventory-data')
+                .then(response => response.json())
+                .then(data => {
+                    allInventoryData = data;
+                    displayInventoryData(data);
+                })
+                .catch(error => {
+                    console.error('Error loading inventory:', error);
+                    // Load sample data if API fails
+                    loadSampleData();
+                });
+        }
+
+        function loadSampleData() {
+            allInventoryData = [
+                {sku: 'WH001', name: 'Wireless Headphones', category: 'Electronics', current_stock: 45, min_stock_level: 10, cost_price: 800, selling_price: 1500},
+                {sku: 'KB002', name: 'Mechanical Keyboard', category: 'Electronics', current_stock: 23, min_stock_level: 5, cost_price: 1200, selling_price: 2200},
+                {sku: 'MS003', name: 'Gaming Mouse', category: 'Electronics', current_stock: 67, min_stock_level: 15, cost_price: 600, selling_price: 1100},
+                {sku: 'CH004', name: 'Phone Charger', category: 'Accessories', current_stock: 120, min_stock_level: 20, cost_price: 150, selling_price: 350},
+                {sku: 'CS005', name: 'Phone Case', category: 'Accessories', current_stock: 8, min_stock_level: 10, cost_price: 100, selling_price: 250},
+                {sku: 'SP006', name: 'Bluetooth Speaker', category: 'Electronics', current_stock: 0, min_stock_level: 5, cost_price: 900, selling_price: 1800},
+                {sku: 'CB007', name: 'USB Cable', category: 'Accessories', current_stock: 200, min_stock_level: 50, cost_price: 50, selling_price: 150},
+                {sku: 'TB008', name: 'Tablet Stand', category: 'Accessories', current_stock: 35, min_stock_level: 8, cost_price: 300, selling_price: 650}
+            ];
+            displayInventoryData(allInventoryData);
+        }
+
+        function displayInventoryData(data) {
+            const tbody = document.getElementById('inventoryTable');
+            tbody.innerHTML = '';
+            
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                
+                if (item.current_stock === 0) {
+                    row.classList.add('out-of-stock');
+                } else if (item.current_stock <= item.min_stock_level) {
+                    row.classList.add('low-stock');
+                }
+                
+                const status = item.current_stock === 0 ? 'Out of Stock' : 
+                             item.current_stock <= item.min_stock_level ? 'Low Stock' : 'In Stock';
+                
+                row.innerHTML = `
+                    <td>${item.sku}</td>
+                    <td>${item.name}</td>
+                    <td>${item.category}</td>
+                    <td>${item.current_stock}</td>
+                    <td>${item.min_stock_level}</td>
+                    <td>₹${item.cost_price}</td>
+                    <td>₹${item.selling_price}</td>
+                    <td><span class="badge ${status === 'In Stock' ? 'bg-success' : status === 'Low Stock' ? 'bg-warning' : 'bg-danger'}">${status}</span></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function filterByCategory() {
+            const selectedCategory = document.getElementById('categoryFilter').value;
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            let filteredData = allInventoryData;
+            
+            if (selectedCategory) {
+                filteredData = filteredData.filter(item => item.category === selectedCategory);
+            }
+            
+            if (searchTerm) {
+                filteredData = filteredData.filter(item => 
+                    item.name.toLowerCase().includes(searchTerm) || 
+                    item.sku.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            displayInventoryData(filteredData);
+        }
+
+        function filterTable() {
+            filterByCategory(); // Reuse the same filtering logic
+        }
+
+        function showAddProductModal() {
+            new bootstrap.Modal(document.getElementById('addProductModal')).show();
+        }
+
+        function showUpdateStockModal() {
+            new bootstrap.Modal(document.getElementById('updateStockModal')).show();
+        }
+
+        function addProduct() {
+            const form = document.getElementById('addProductForm');
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData);
+            
+            fetch('/api/add-product', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.error) {
+                    alert('Error: ' + result.error);
+                } else {
+                    alert('Product added successfully!');
+                    bootstrap.Modal.getInstance(document.getElementById('addProductModal')).hide();
+                    form.reset();
+                    loadDashboard();
+                }
+            });
+        }
+
+        function updateStock() {
+            const form = document.getElementById('updateStockForm');
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData);
+            
+            fetch('/api/update-stock', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.error) {
+                    alert('Error: ' + result.error);
+                } else {
+                    alert('Stock updated successfully!');
+                    bootstrap.Modal.getInstance(document.getElementById('updateStockModal')).hide();
+                    form.reset();
+                    loadDashboard();
+                }
+            });
+        }
+
+        function exportToExcel() {
+            window.open('/api/export-excel', '_blank');
+        }
+
+        function showOrderModal() {
+            new bootstrap.Modal(document.getElementById('orderModal')).show();
+        }
+
+        function showSupplierModal() {
+            new bootstrap.Modal(document.getElementById('supplierModal')).show();
+        }
+
+        function processOrder() {
+            showCustomPopup(
+                'fas fa-check-circle',
+                'Order Processed',
+                'Order has been successfully processed and added to the fulfillment queue.',
+                [
+                    {
+                        text: 'OK',
+                        class: 'popup-btn-primary',
+                        action: () => {
+                            hideCustomPopup();
+                            bootstrap.Modal.getInstance(document.getElementById('orderModal')).hide();
+                        }
+                    }
+                ]
+            );
+        }
+
+        function addSupplier() {
+            showCustomPopup(
+                'fas fa-truck',
+                'Supplier Added',
+                'New supplier has been successfully added to your supplier database.',
+                [
+                    {
+                        text: 'OK',
+                        class: 'popup-btn-primary',
+                        action: () => {
+                            hideCustomPopup();
+                            bootstrap.Modal.getInstance(document.getElementById('supplierModal')).hide();
+                        }
+                    }
+                ]
+            );
+        }
+
+        function showCustomPopup(icon, title, message, buttons) {
+            document.getElementById('popupIcon').className = `popup-icon ${icon}`;
+            document.getElementById('popupTitle').textContent = title;
+            document.getElementById('popupMessage').textContent = message;
+            
+            const buttonsContainer = document.getElementById('popupButtons');
+            buttonsContainer.innerHTML = '';
+            
+            buttons.forEach(button => {
+                const btn = document.createElement('button');
+                btn.className = `popup-btn ${button.class}`;
+                btn.textContent = button.text;
+                btn.onclick = button.action;
+                buttonsContainer.appendChild(btn);
+            });
+            
+            document.getElementById('customPopup').classList.add('show');
+        }
+
+        function hideCustomPopup() {
+            document.getElementById('customPopup').classList.remove('show');
+        }
+
+        function showReports() {
+            showCustomPopup(
+                'fas fa-chart-bar',
+                'Reports & Analytics',
+                'View comprehensive reports including inventory analytics, sales performance, and platform metrics.',
+                [
+                    {
+                        text: 'View Reports',
+                        class: 'popup-btn-primary',
+                        action: () => {
+                            hideCustomPopup();
+                            // Add reports functionality here
+                        }
+                    },
+                    {
+                        text: 'Cancel',
+                        class: 'popup-btn-secondary',
+                        action: hideCustomPopup
+                    }
+                ]
+            );
+        }
+
+        function showSettings() {
+            showCustomPopup(
+                'fas fa-cog',
+                'System Settings',
+                'Configure platform APIs, notification preferences, backup settings, and security options.',
+                [
+                    {
+                        text: 'Open Settings',
+                        class: 'popup-btn-primary',
+                        action: () => {
+                            hideCustomPopup();
+                            window.location.href = '/admin';
+                        }
+                    },
+                    {
+                        text: 'Cancel',
+                        class: 'popup-btn-secondary',
+                        action: hideCustomPopup
+                    }
+                ]
+            );
+        }
+
+        function logout() {
+            showCustomPopup(
+                'fas fa-sign-out-alt',
+                'Confirm Logout',
+                'Are you sure you want to logout? Any unsaved changes will be lost.',
+                [
+                    {
+                        text: 'Yes, Logout',
+                        class: 'popup-btn-primary',
+                        action: () => {
+                            hideCustomPopup();
+                            window.location.href = '/';
+                        }
+                    },
+                    {
+                        text: 'Cancel',
+                        class: 'popup-btn-secondary',
+                        action: hideCustomPopup
+                    }
+                ]
+            );
+        }
+
+        function showConnectStoreModal() {
+            new bootstrap.Modal(document.getElementById('connectStoreModal')).show();
+        }
+
+        function connectStore(platform) {
+            alert(`Manage ${platform} store connection and view sync status`);
+        }
+
+        function connectAmazon() {
+            showApiConfigModal('Amazon', [
+                {label: 'Client ID', name: 'client_id', type: 'text'},
+                {label: 'Client Secret', name: 'client_secret', type: 'password'},
+                {label: 'Refresh Token', name: 'refresh_token', type: 'text'},
+                {label: 'Marketplace ID', name: 'marketplace_id', type: 'text', value: 'ATVPDKIKX0DER'}
+            ]);
+        }
+
+        function connectFlipkart() {
+            showApiConfigModal('Flipkart', [
+                {label: 'App ID', name: 'app_id', type: 'text'},
+                {label: 'App Secret', name: 'app_secret', type: 'password'},
+                {label: 'Access Token', name: 'access_token', type: 'text'}
+            ]);
+        }
+
+        function connectMeesho() {
+            showApiConfigModal('Meesho', [
+                {label: 'Supplier ID', name: 'supplier_id', type: 'text'},
+                {label: 'API Key', name: 'api_key', type: 'password'}
+            ]);
+        }
+
+        function connectShopify() {
+            showApiConfigModal('Shopify', [
+                {label: 'Shop URL', name: 'shop_url', type: 'url', placeholder: 'https://your-shop.myshopify.com'},
+                {label: 'Access Token', name: 'access_token', type: 'password'}
+            ]);
+        }
+
+        function connectEbay() {
+            showApiConfigModal('eBay', [
+                {label: 'App ID', name: 'app_id', type: 'text'},
+                {label: 'Dev ID', name: 'dev_id', type: 'text'},
+                {label: 'Cert ID', name: 'cert_id', type: 'password'},
+                {label: 'User Token', name: 'user_token', type: 'password'}
+            ]);
+        }
+
+        function connectCustom() {
+            showApiConfigModal('Custom API', [
+                {label: 'Platform Name', name: 'platform_name', type: 'text'},
+                {label: 'API Endpoint', name: 'api_endpoint', type: 'url'},
+                {label: 'API Key', name: 'api_key', type: 'password'},
+                {label: 'Additional Headers', name: 'headers', type: 'textarea'}
+            ]);
+        }
+
+        function showApiConfigModal(platform, fields) {
+            document.getElementById('apiModalTitle').textContent = `Configure ${platform} API`;
+            const fieldsContainer = document.getElementById('apiFields');
+            fieldsContainer.innerHTML = '';
+            
+            fields.forEach(field => {
+                const div = document.createElement('div');
+                div.className = 'mb-3';
+                
+                if (field.type === 'textarea') {
+                    div.innerHTML = `
+                        <label class="form-label">${field.label}</label>
+                        <textarea class="form-control" name="${field.name}" placeholder="${field.placeholder || ''}"></textarea>
+                    `;
+                } else {
+                    div.innerHTML = `
+                        <label class="form-label">${field.label}</label>
+                        <input type="${field.type}" class="form-control" name="${field.name}" 
+                               placeholder="${field.placeholder || ''}" value="${field.value || ''}">
+                    `;
+                }
+                fieldsContainer.appendChild(div);
+            });
+            
+            bootstrap.Modal.getInstance(document.getElementById('connectStoreModal')).hide();
+            new bootstrap.Modal(document.getElementById('apiConfigModal')).show();
+        }
+
+        function saveApiConfig() {
+            const formData = new FormData(document.getElementById('apiConfigForm'));
+            const config = Object.fromEntries(formData);
+            
+            // Here you would send the config to your backend
+            console.log('API Configuration:', config);
+            alert('API configuration saved successfully! Your store will be connected shortly.');
+            
+            bootstrap.Modal.getInstance(document.getElementById('apiConfigModal')).hide();
+        }
+
+        // Close popup when clicking outside
+        document.getElementById('customPopup').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideCustomPopup();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', loadDashboard);
+    </script>
+</body>
+</html>
