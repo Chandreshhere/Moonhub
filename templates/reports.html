@@ -3,21 +3,263 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reports & Analytics - MoonHub</title>
+    <title>Analytics Dashboard - MoonHub</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
-        .navbar { background: rgba(255,255,255,0.1) !important; backdrop-filter: blur(20px); }
-        .card { background: rgba(255,255,255,0.95); border-radius: 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
-        .stat-card { background: linear-gradient(145deg, rgba(255,255,255,0.9), rgba(255,255,255,0.8)); border-radius: 15px; padding: 1.5rem; margin-bottom: 1rem; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(45deg, #0a0a0a, #1a1a2e, #16213e);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Floating particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(111, 66, 193, 0.6);
+            border-radius: 50%;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* Navigation */
+        .navbar {
+            background: rgba(10, 10, 10, 0.8) !important;
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(111, 66, 193, 0.2);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            background: linear-gradient(45deg, #6f42c1, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #6f42c1, #8b5cf6, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            animation: fadeInUp 1s ease;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.7);
+            animation: fadeInUp 1s ease 0.2s both;
+        }
+
+        /* Stats Section */
+        .stats-section {
+            padding: 100px 0;
+            position: relative;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            border: 1px solid rgba(111, 66, 193, 0.2);
+            backdrop-filter: blur(20px);
+            transition: all 0.3s ease;
+            margin-bottom: 2rem;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(111, 66, 193, 0.3);
+            border-color: rgba(111, 66, 193, 0.5);
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #6f42c1, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        /* Charts Section */
+        .charts-section {
+            padding: 100px 0;
+        }
+
+        .chart-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            border: 1px solid rgba(111, 66, 193, 0.2);
+            backdrop-filter: blur(20px);
+            transition: all 0.3s ease;
+        }
+
+        .chart-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(111, 66, 193, 0.2);
+        }
+
+        .chart-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: #ffffff;
+        }
+
+        /* Table Section */
+        .table-section {
+            padding: 100px 0;
+        }
+
+        .modern-table {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(111, 66, 193, 0.2);
+            backdrop-filter: blur(20px);
+        }
+
+        .table {
+            color: #ffffff;
+            margin: 0;
+        }
+
+        .table thead th {
+            background: rgba(111, 66, 193, 0.2);
+            border: none;
+            padding: 1.5rem 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+
+        .table tbody td {
+            border: none;
+            padding: 1.5rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .table tbody tr:hover {
+            background: rgba(111, 66, 193, 0.1);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.8s ease forwards;
+            opacity: 0;
+        }
+
+        /* Scroll animations */
+        .scroll-reveal {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s ease;
+        }
+
+        .scroll-reveal.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+            .stat-number { font-size: 2rem; }
+            .chart-container { padding: 1rem; }
+            .stats-section, .charts-section, .table-section { padding: 50px 0; }
+        }
     </style>
 </head>
 <body>
+    <!-- Animated Background -->
+    <div class="bg-animation"></div>
+    <div class="particles" id="particles"></div>
+
+    <!-- Navigation -->
     <nav class="navbar navbar-expand-lg">
         <div class="container">
-            <a class="navbar-brand text-white" href="/dashboard"><i class="fas fa-moon"></i> MoonHub</a>
+            <a class="navbar-brand" href="/dashboard">
+                <i class="fas fa-moon"></i> MoonHub
+            </a>
             <div class="navbar-nav ms-auto">
                 <a class="nav-link text-white" href="/dashboard">Dashboard</a>
                 <a class="nav-link text-white" href="/platforms">Platforms</a>
@@ -26,212 +268,314 @@
         </div>
     </nav>
 
-    <div class="container mt-4">
-        <h1 class="text-white mb-4"><i class="fas fa-chart-bar"></i> Reports & Analytics</h1>
-        
-        <!-- Stats Cards -->
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="stat-card text-center">
-                    <h3 class="text-primary" id="totalRevenue">₹0</h3>
-                    <p class="mb-0">Total Revenue</p>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stat-card text-center">
-                    <h3 class="text-success" id="totalOrders">0</h3>
-                    <p class="mb-0">Total Orders</p>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stat-card text-center">
-                    <h3 class="text-warning" id="avgOrderValue">₹0</h3>
-                    <p class="mb-0">Avg Order Value</p>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stat-card text-center">
-                    <h3 class="text-info" id="profitMargin">0%</h3>
-                    <p class="mb-0">Profit Margin</p>
-                </div>
-            </div>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>Analytics Dashboard</h1>
+            <p>Real-time insights into your inventory performance</p>
         </div>
+    </section>
 
-        <!-- Charts -->
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h5><i class="fas fa-chart-line"></i> Sales Trend</h5>
-                    </div>
-                    <div class="card-body">
-                        <canvas id="salesChart"></canvas>
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="stat-item scroll-reveal">
+                        <div class="stat-number" id="totalRevenue">₹0</div>
+                        <div class="stat-label">Total Revenue</div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h5><i class="fas fa-chart-pie"></i> Category Distribution</h5>
+                <div class="col-md-3">
+                    <div class="stat-item scroll-reveal">
+                        <div class="stat-number" id="totalOrders">0</div>
+                        <div class="stat-label">Total Orders</div>
                     </div>
-                    <div class="card-body">
-                        <canvas id="categoryChart"></canvas>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-item scroll-reveal">
+                        <div class="stat-number" id="avgOrderValue">₹0</div>
+                        <div class="stat-label">Avg Order Value</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-item scroll-reveal">
+                        <div class="stat-number" id="profitMargin">0%</div>
+                        <div class="stat-label">Profit Margin</div>
                     </div>
                 </div>
             </div>
         </div>
+    </section>
 
-        <div class="row mt-4">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h5><i class="fas fa-store"></i> Platform Performance</h5>
+    <!-- Charts Section -->
+    <section class="charts-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="chart-container scroll-reveal">
+                        <h3 class="chart-title"><i class="fas fa-chart-line"></i> Sales Performance</h3>
+                        <canvas id="salesChart" height="300"></canvas>
                     </div>
-                    <div class="card-body">
-                        <canvas id="platformChart"></canvas>
+                </div>
+                <div class="col-lg-4">
+                    <div class="chart-container scroll-reveal">
+                        <h3 class="chart-title"><i class="fas fa-chart-pie"></i> Category Mix</h3>
+                        <canvas id="categoryChart" height="300"></canvas>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h5><i class="fas fa-boxes"></i> Inventory Valuation</h5>
+            
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="chart-container scroll-reveal">
+                        <h3 class="chart-title"><i class="fas fa-store"></i> Platform Revenue</h3>
+                        <canvas id="platformChart" height="250"></canvas>
                     </div>
-                    <div class="card-body">
-                        <canvas id="inventoryChart"></canvas>
+                </div>
+                <div class="col-lg-6">
+                    <div class="chart-container scroll-reveal">
+                        <h3 class="chart-title"><i class="fas fa-boxes"></i> Inventory Status</h3>
+                        <canvas id="inventoryChart" height="250"></canvas>
                     </div>
                 </div>
             </div>
         </div>
+    </section>
 
-        <!-- Recent Orders Table -->
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h5><i class="fas fa-shopping-cart"></i> Recent Orders</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Order ID</th>
-                                        <th>Platform</th>
-                                        <th>Product</th>
-                                        <th>Quantity</th>
-                                        <th>Amount</th>
-                                        <th>Status</th>
-                                        <th>Date</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="ordersTable">
-                                    <tr><td colspan="7" class="text-center">Loading...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+    <!-- Table Section -->
+    <section class="table-section">
+        <div class="container">
+            <div class="modern-table scroll-reveal">
+                <h3 class="chart-title p-4"><i class="fas fa-shopping-cart"></i> Recent Transactions</h3>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Platform</th>
+                                <th>Product</th>
+                                <th>Quantity</th>
+                                <th>Revenue</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTable">
+                            <tr><td colspan="7" class="text-center">Loading transactions...</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Load reports data
-        function loadReports() {
-            // Sample data - replace with API calls
-            document.getElementById('totalRevenue').textContent = '₹2,45,000';
-            document.getElementById('totalOrders').textContent = '156';
-            document.getElementById('avgOrderValue').textContent = '₹1,570';
-            document.getElementById('profitMargin').textContent = '42%';
+        // Create floating particles
+        function createParticles() {
+            const particles = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                particles.appendChild(particle);
+            }
+        }
 
-            // Sales trend chart
-            const salesCtx = document.getElementById('salesChart').getContext('2d');
-            new Chart(salesCtx, {
+        // Scroll reveal animation
+        function revealOnScroll() {
+            const reveals = document.querySelectorAll('.scroll-reveal');
+            reveals.forEach(element => {
+                const windowHeight = window.innerHeight;
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < windowHeight - elementVisible) {
+                    element.classList.add('revealed');
+                }
+            });
+        }
+
+        // Load analytics data
+        function loadAnalytics() {
+            // Animate numbers
+            animateNumber('totalRevenue', 245000, '₹');
+            animateNumber('totalOrders', 156, '');
+            animateNumber('avgOrderValue', 1570, '₹');
+            animateNumber('profitMargin', 42, '%');
+
+            // Create charts
+            createSalesChart();
+            createCategoryChart();
+            createPlatformChart();
+            createInventoryChart();
+            loadTransactions();
+        }
+
+        function animateNumber(id, target, prefix = '') {
+            const element = document.getElementById(id);
+            let current = 0;
+            const increment = target / 100;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+                element.textContent = prefix + Math.floor(current).toLocaleString();
+            }, 20);
+        }
+
+        function createSalesChart() {
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
                     datasets: [{
-                        label: 'Sales',
-                        data: [12000, 19000, 15000, 25000, 22000, 30000],
-                        borderColor: '#667eea',
-                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                        tension: 0.4
+                        label: 'Revenue',
+                        data: [12000, 19000, 15000, 25000, 22000, 30000, 28000, 35000, 32000, 40000, 38000, 45000],
+                        borderColor: '#6f42c1',
+                        backgroundColor: 'rgba(111, 66, 193, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#8b5cf6',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2
                     }]
                 },
-                options: { responsive: true, maintainAspectRatio: false }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { 
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            ticks: { color: '#ffffff' }
+                        },
+                        x: { 
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            ticks: { color: '#ffffff' }
+                        }
+                    }
+                }
             });
+        }
 
-            // Category chart
-            const categoryCtx = document.getElementById('categoryChart').getContext('2d');
-            new Chart(categoryCtx, {
+        function createCategoryChart() {
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            new Chart(ctx, {
                 type: 'doughnut',
                 data: {
                     labels: ['Electronics', 'Accessories', 'Fashion', 'Home'],
                     datasets: [{
                         data: [45, 30, 15, 10],
-                        backgroundColor: ['#667eea', '#764ba2', '#f093fb', '#f5576c']
+                        backgroundColor: ['#6f42c1', '#8b5cf6', '#a855f7', '#c084fc'],
+                        borderWidth: 0
                     }]
                 },
-                options: { responsive: true, maintainAspectRatio: false }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#ffffff', padding: 20 }
+                        }
+                    }
+                }
             });
+        }
 
-            // Platform chart
-            const platformCtx = document.getElementById('platformChart').getContext('2d');
-            new Chart(platformCtx, {
+        function createPlatformChart() {
+            const ctx = document.getElementById('platformChart').getContext('2d');
+            new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: ['Amazon', 'Flipkart', 'Meesho', 'Shopify'],
                     datasets: [{
-                        label: 'Revenue',
                         data: [85000, 65000, 45000, 35000],
-                        backgroundColor: ['#ff9500', '#047bd6', '#9c1ab1', '#96bf48']
+                        backgroundColor: ['#ff9500', '#047bd6', '#9c1ab1', '#96bf48'],
+                        borderRadius: 8
                     }]
                 },
-                options: { responsive: true, maintainAspectRatio: false }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { 
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            ticks: { color: '#ffffff' }
+                        },
+                        x: { 
+                            grid: { display: false },
+                            ticks: { color: '#ffffff' }
+                        }
+                    }
+                }
             });
+        }
 
-            // Inventory chart
-            const inventoryCtx = document.getElementById('inventoryChart').getContext('2d');
-            new Chart(inventoryCtx, {
-                type: 'bar',
+        function createInventoryChart() {
+            const ctx = document.getElementById('inventoryChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
                 data: {
                     labels: ['In Stock', 'Low Stock', 'Out of Stock'],
                     datasets: [{
                         data: [120, 25, 8],
-                        backgroundColor: ['#28a745', '#ffc107', '#dc3545']
+                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                        borderWidth: 0
                     }]
                 },
-                options: { responsive: true, maintainAspectRatio: false }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#ffffff', padding: 20 }
+                        }
+                    }
+                }
             });
-
-            // Load orders
-            loadOrders();
         }
 
-        function loadOrders() {
-            const orders = [
-                {id: 'ORD001', platform: 'Amazon', product: 'Wireless Headphones', qty: 2, amount: 3000, status: 'Delivered', date: '2024-12-08'},
-                {id: 'ORD002', platform: 'Flipkart', product: 'Phone Case', qty: 1, amount: 250, status: 'Shipped', date: '2024-12-08'},
-                {id: 'ORD003', platform: 'Meesho', product: 'USB Cable', qty: 5, amount: 750, status: 'Processing', date: '2024-12-09'}
+        function loadTransactions() {
+            const transactions = [
+                {id: 'TXN001', platform: 'Amazon', product: 'Wireless Headphones', qty: 2, revenue: 3000, status: 'Completed', date: '2024-12-08'},
+                {id: 'TXN002', platform: 'Flipkart', product: 'Phone Case', qty: 1, revenue: 250, status: 'Processing', date: '2024-12-08'},
+                {id: 'TXN003', platform: 'Meesho', product: 'USB Cable', qty: 5, revenue: 750, status: 'Shipped', date: '2024-12-09'},
+                {id: 'TXN004', platform: 'Amazon', product: 'Gaming Mouse', qty: 1, revenue: 1100, status: 'Completed', date: '2024-12-09'},
+                {id: 'TXN005', platform: 'Shopify', product: 'Keyboard', qty: 1, revenue: 2200, status: 'Pending', date: '2024-12-09'}
             ];
 
             const tbody = document.getElementById('ordersTable');
-            tbody.innerHTML = orders.map(order => `
+            tbody.innerHTML = transactions.map(txn => `
                 <tr>
-                    <td><strong>${order.id}</strong></td>
-                    <td><span class="badge bg-primary">${order.platform}</span></td>
-                    <td>${order.product}</td>
-                    <td>${order.qty}</td>
-                    <td>₹${order.amount.toLocaleString()}</td>
-                    <td><span class="badge bg-success">${order.status}</span></td>
-                    <td>${order.date}</td>
+                    <td><strong>${txn.id}</strong></td>
+                    <td><span class="badge" style="background: linear-gradient(45deg, #6f42c1, #8b5cf6);">${txn.platform}</span></td>
+                    <td>${txn.product}</td>
+                    <td>${txn.qty}</td>
+                    <td><strong>₹${txn.revenue.toLocaleString()}</strong></td>
+                    <td><span class="badge bg-success">${txn.status}</span></td>
+                    <td>${txn.date}</td>
                 </tr>
             `).join('');
         }
 
-        document.addEventListener('DOMContentLoaded', loadReports);
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            createParticles();
+            loadAnalytics();
+            revealOnScroll();
+        });
+
+        window.addEventListener('scroll', revealOnScroll);
     </script>
 </body>
 </html>
