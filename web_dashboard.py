@@ -20,7 +20,17 @@ app.secret_key = 'moonhub_production_key_2024'
 CORS(app)
 
 # Initialize inventory manager
-inventory_manager = InventoryManager()
+try:
+    inventory_manager = InventoryManager()
+    # Add sample data if empty
+    inventory_data = inventory_manager.generate_inventory_report()
+    if len(inventory_data) == 0:
+        inventory_manager.add_product("SKU001", "Wireless Headphones", "Electronics", 500, 1200, 50)
+        inventory_manager.add_product("SKU002", "Phone Case", "Accessories", 50, 200, 100)
+        inventory_manager.add_product("SKU003", "USB Cable", "Electronics", 30, 150, 200)
+except Exception as e:
+    print(f"Error initializing inventory: {e}")
+    inventory_manager = None
 
 # Platform API configurations
 PLATFORM_CONFIGS = {
@@ -34,7 +44,10 @@ PLATFORM_CONFIGS = {
 @app.route('/')
 def login():
     """Login page"""
-    return send_file('login.html')
+    try:
+        return send_file('login.html')
+    except:
+        return '<h1>🌙 MoonHub Inventory System</h1><p>Dashboard: <a href="/dashboard">/dashboard</a></p><p>API: <a href="/api/dashboard-stats">/api/dashboard-stats</a></p>'
 
 @app.route('/dashboard')
 def dashboard():
@@ -61,15 +74,18 @@ def get_dashboard_stats():
     """Get dashboard statistics"""
     try:
         # Get inventory data
-        inventory_df = inventory_manager.generate_inventory_report()
+        inventory_data = inventory_manager.generate_inventory_report()
         low_stock_items = inventory_manager.get_low_stock_alerts()
         
         # Calculate statistics
-        total_products = len(inventory_df)
-        total_stock_value = (inventory_df['current_stock'] * inventory_df['cost_price']).sum()
+        total_products = len(inventory_data)
+        total_stock_value = sum(item['current_stock'] * item['cost_price'] for item in inventory_data)
         low_stock_count = len(low_stock_items)
-        out_of_stock_count = len(inventory_df[inventory_df['current_stock'] == 0])
-        avg_profit_margin = ((inventory_df['selling_price'] - inventory_df['cost_price']) / inventory_df['selling_price'] * 100).mean()
+        out_of_stock_count = sum(1 for item in inventory_data if item['current_stock'] == 0)
+        
+        profit_margins = [(item['selling_price'] - item['cost_price']) / item['selling_price'] * 100 
+                         for item in inventory_data if item['selling_price'] > 0]
+        avg_profit_margin = sum(profit_margins) / len(profit_margins) if profit_margins else 0
         
         return jsonify({
             'total_products': total_products,
@@ -85,8 +101,8 @@ def get_dashboard_stats():
 def get_inventory_data():
     """Get inventory data for table display"""
     try:
-        inventory_df = inventory_manager.generate_inventory_report()
-        return jsonify(inventory_df.to_dict('records'))
+        inventory_data = inventory_manager.generate_inventory_report()
+        return jsonify(inventory_data)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -244,10 +260,10 @@ def get_sales_report():
 def get_inventory_valuation():
     """Get inventory valuation report"""
     try:
-        inventory_df = inventory_manager.generate_inventory_report()
+        inventory_data = inventory_manager.generate_inventory_report()
         
         valuation_data = []
-        for _, row in inventory_df.iterrows():
+        for row in inventory_data:
             valuation_data.append({
                 'sku': row['sku'],
                 'name': row['name'],

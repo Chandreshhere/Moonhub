@@ -10,11 +10,15 @@ from datetime import datetime, timedelta
 import requests
 from typing import Dict, List, Optional
 import logging
+import os
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill
 
 class InventoryManager:
-    def __init__(self, db_path: str = "inventory.db"):
+    def __init__(self, db_path: str = None):
+        if db_path is None:
+            # Use /tmp for Vercel serverless
+            db_path = os.environ.get('TMPDIR', '/tmp') + '/inventory.db'
         self.db_path = db_path
         self.setup_database()
         self.setup_logging()
@@ -24,7 +28,6 @@ class InventoryManager:
             level=logging.INFO,
             format='%(asctime)s - %(levelname)s - %(message)s',
             handlers=[
-                logging.FileHandler('inventory.log'),
                 logging.StreamHandler()
             ]
         )
@@ -268,7 +271,9 @@ class InventoryManager:
         if not filename:
             filename = f"inventory_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
         
-        filepath = filename
+        # Use /tmp for Vercel
+        tmpdir = os.environ.get('TMPDIR', '/tmp')
+        filepath = os.path.join(tmpdir, filename)
         
         wb = Workbook()
         wb.remove(wb.active)
