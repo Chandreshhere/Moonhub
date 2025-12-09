@@ -910,7 +910,9 @@
                                         <th>Min Stock</th>
                                         <th>Cost Price</th>
                                         <th>Selling Price</th>
+                                        <th>Profit Margin</th>
                                         <th>Status</th>
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody id="inventoryTable">
@@ -1339,6 +1341,11 @@
             const tbody = document.getElementById('inventoryTable');
             tbody.innerHTML = '';
             
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" class="text-center">No products found</td></tr>';
+                return;
+            }
+            
             data.forEach(item => {
                 const row = document.createElement('tr');
                 
@@ -1351,15 +1358,23 @@
                 const status = item.current_stock === 0 ? 'Out of Stock' : 
                              item.current_stock <= item.min_stock_level ? 'Low Stock' : 'In Stock';
                 
+                const profitMargin = ((item.selling_price - item.cost_price) / item.selling_price * 100).toFixed(1);
+                
                 row.innerHTML = `
-                    <td>${item.sku}</td>
+                    <td><strong>${item.sku}</strong></td>
                     <td>${item.name}</td>
-                    <td>${item.category}</td>
-                    <td>${item.current_stock}</td>
+                    <td><span class="badge bg-secondary">${item.category}</span></td>
+                    <td><strong>${item.current_stock}</strong></td>
                     <td>${item.min_stock_level}</td>
-                    <td>₹${item.cost_price}</td>
-                    <td>₹${item.selling_price}</td>
+                    <td>₹${item.cost_price.toLocaleString()}</td>
+                    <td>₹${item.selling_price.toLocaleString()}</td>
+                    <td><span class="badge ${profitMargin > 50 ? 'bg-success' : 'bg-info'}">${profitMargin}%</span></td>
                     <td><span class="badge ${status === 'In Stock' ? 'bg-success' : status === 'Low Stock' ? 'bg-warning' : 'bg-danger'}">${status}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-danger" onclick="deleteProduct('${item.sku}')" title="Delete Product">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
                 `;
                 tbody.appendChild(row);
             });
@@ -1409,15 +1424,76 @@
             })
             .then(response => response.json())
             .then(result => {
-                if (result.error) {
-                    alert('Error: ' + result.error);
-                } else {
-                    alert('Product added successfully!');
+                if (result.success) {
+                    showCustomPopup(
+                        'fas fa-check-circle',
+                        'Product Added',
+                        `Product ${data.sku} has been successfully added to inventory.`,
+                        [{
+                            text: 'OK',
+                            class: 'popup-btn-primary',
+                            action: hideCustomPopup
+                        }]
+                    );
                     bootstrap.Modal.getInstance(document.getElementById('addProductModal')).hide();
                     form.reset();
                     loadDashboard();
+                } else {
+                    alert('Error: ' + (result.error || 'Failed to add product'));
                 }
+            })
+            .catch(error => {
+                alert('Error: ' + error.message);
             });
+        }
+        
+        function deleteProduct(sku) {
+            showCustomPopup(
+                'fas fa-exclamation-triangle',
+                'Confirm Delete',
+                `Are you sure you want to delete product ${sku}? This action cannot be undone.`,
+                [
+                    {
+                        text: 'Yes, Delete',
+                        class: 'popup-btn-primary',
+                        action: () => {
+                            fetch('/api/delete-product', {
+                                method: 'POST',
+                                headers: {'Content-Type': 'application/json'},
+                                body: JSON.stringify({sku: sku})
+                            })
+                            .then(response => response.json())
+                            .then(result => {
+                                if (result.success) {
+                                    showCustomPopup(
+                                        'fas fa-check-circle',
+                                        'Product Deleted',
+                                        `Product ${sku} has been successfully removed from inventory.`,
+                                        [{
+                                            text: 'OK',
+                                            class: 'popup-btn-primary',
+                                            action: hideCustomPopup
+                                        }]
+                                    );
+                                    loadDashboard();
+                                } else {
+                                    alert('Error: ' + (result.error || 'Failed to delete product'));
+                                    hideCustomPopup();
+                                }
+                            })
+                            .catch(error => {
+                                alert('Error: ' + error.message);
+                                hideCustomPopup();
+                            });
+                        }
+                    },
+                    {
+                        text: 'Cancel',
+                        class: 'popup-btn-secondary',
+                        action: hideCustomPopup
+                    }
+                ]
+            );
         }
 
         function updateStock() {
@@ -1432,14 +1508,26 @@
             })
             .then(response => response.json())
             .then(result => {
-                if (result.error) {
-                    alert('Error: ' + result.error);
-                } else {
-                    alert('Stock updated successfully!');
+                if (result.success) {
+                    showCustomPopup(
+                        'fas fa-check-circle',
+                        'Stock Updated',
+                        `Stock for ${data.sku} has been successfully updated.`,
+                        [{
+                            text: 'OK',
+                            class: 'popup-btn-primary',
+                            action: hideCustomPopup
+                        }]
+                    );
                     bootstrap.Modal.getInstance(document.getElementById('updateStockModal')).hide();
                     form.reset();
                     loadDashboard();
+                } else {
+                    alert('Error: ' + (result.error || 'Failed to update stock'));
                 }
+            })
+            .catch(error => {
+                alert('Error: ' + error.message);
             });
         }
 
@@ -1686,6 +1774,9 @@
             }
         });
 
+        // Auto-refresh dashboard every 30 seconds
+        setInterval(loadDashboard, 30000);
+        
         document.addEventListener('DOMContentLoaded', loadDashboard);
     </script>
 </body>

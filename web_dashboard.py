@@ -147,12 +147,45 @@ def add_product():
         )
         
         if success:
-            return jsonify({'message': 'Product added successfully'})
+            return jsonify({'message': 'Product added successfully', 'success': True})
         else:
-            return jsonify({'error': 'Failed to add product'}), 400
+            return jsonify({'error': 'Failed to add product', 'success': False}), 400
             
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': str(e), 'success': False}), 500
+
+@app.route('/api/delete-product', methods=['POST'])
+def delete_product():
+    """Delete product from inventory"""
+    try:
+        data = request.json
+        sku = data.get('sku')
+        
+        conn = sqlite3.connect(inventory_manager.db_path)
+        cursor = conn.cursor()
+        
+        # Get product ID
+        cursor.execute('SELECT id FROM products WHERE sku = ?', (sku,))
+        result = cursor.fetchone()
+        
+        if not result:
+            return jsonify({'error': 'Product not found', 'success': False}), 404
+        
+        product_id = result[0]
+        
+        # Delete related records
+        cursor.execute('DELETE FROM platform_listings WHERE product_id = ?', (product_id,))
+        cursor.execute('DELETE FROM stock_movements WHERE product_id = ?', (product_id,))
+        cursor.execute('DELETE FROM orders WHERE product_id = ?', (product_id,))
+        cursor.execute('DELETE FROM products WHERE id = ?', (product_id,))
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({'message': 'Product deleted successfully', 'success': True})
+        
+    except Exception as e:
+        return jsonify({'error': str(e), 'success': False}), 500
 
 @app.route('/api/update-stock', methods=['POST'])
 def update_stock():
@@ -169,12 +202,12 @@ def update_stock():
         )
         
         if success:
-            return jsonify({'message': 'Stock updated successfully'})
+            return jsonify({'message': 'Stock updated successfully', 'success': True})
         else:
-            return jsonify({'error': 'Failed to update stock'}), 400
+            return jsonify({'error': 'Failed to update stock', 'success': False}), 400
             
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': str(e), 'success': False}), 500
 
 @app.route('/api/export-excel')
 def export_excel():
