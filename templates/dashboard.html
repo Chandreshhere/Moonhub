@@ -48,7 +48,7 @@
         }
 
         .navbar {
-            background: rgba(255, 255, 255, 0.95) !important;
+            background: rgba(255, 255, 255, 0.1) !important;
             backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(111, 66, 193, 0.2);
             padding: 1rem 0;
@@ -550,9 +550,15 @@
             }
 
             .navbar-nav {
-                flex-direction: row;
-                flex-wrap: wrap;
-                gap: 0.5rem;
+                background: rgba(255, 255, 255, 0.95);
+                border-radius: 12px;
+                padding: 1rem;
+                margin-top: 1rem;
+                box-shadow: 0 4px 20px rgba(111, 66, 193, 0.2);
+            }
+            
+            .navbar-collapse {
+                z-index: 1040;
             }
 
             .nav-link {
@@ -751,8 +757,8 @@
             <a class="navbar-brand" href="#">
                 <i class="fas fa-moon"></i> MoonHub
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" style="border: none; background: rgba(111, 66, 193, 0.1); padding: 0.5rem;">
+                <i class="fas fa-bars" style="color: var(--accent-purple); font-size: 1.2rem;"></i>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
             <div class="navbar-nav ms-auto">
