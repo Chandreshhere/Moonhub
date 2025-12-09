@@ -3,16 +3,25 @@ Simple SQLite Database Handler
 """
 import sqlite3
 import os
-from pathlib import Path
 
-# Database path
-DB_PATH = os.path.join(os.path.dirname(__file__), 'inventory.db')
+# Use in-memory database for Vercel serverless
+DB_PATH = ':memory:' if os.environ.get('VERCEL') else 'inventory.db'
+
+# Global connection for in-memory database
+_connection = None
 
 def get_connection():
     """Get database connection"""
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
+    global _connection
+    if DB_PATH == ':memory:':
+        if _connection is None:
+            _connection = sqlite3.connect(':memory:', check_same_thread=False)
+            _connection.row_factory = sqlite3.Row
+        return _connection
+    else:
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+        return conn
 
 def setup_database():
     """Initialize database with tables"""
@@ -48,4 +57,5 @@ def setup_database():
     ''')
     
     conn.commit()
-    conn.close()
+    if DB_PATH != ':memory:':
+        conn.close()

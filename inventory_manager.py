@@ -10,6 +10,9 @@ import os
 class InventoryManager:
     def __init__(self):
         setup_database()
+        # Add sample data for Vercel
+        if os.environ.get('VERCEL'):
+            self._add_sample_data()
     
     def add_product(self, sku, name, category, cost_price, selling_price, initial_stock=0):
         """Add new product"""
@@ -31,7 +34,8 @@ class InventoryManager:
                 ''', (product_id, initial_stock))
             
             conn.commit()
-            conn.close()
+            if not os.environ.get('VERCEL'):
+                conn.close()
             return True
         except Exception as e:
             print(f"Error adding product: {e}")
@@ -72,7 +76,8 @@ class InventoryManager:
             ''', (product_id, movement_type, quantity, notes))
             
             conn.commit()
-            conn.close()
+            if not os.environ.get('VERCEL'):
+                conn.close()
             return True
         except Exception as e:
             print(f"Error updating stock: {e}")
@@ -99,7 +104,8 @@ class InventoryManager:
             cursor.execute('DELETE FROM products WHERE id = ?', (product_id,))
             
             conn.commit()
-            conn.close()
+            if not os.environ.get('VERCEL'):
+                conn.close()
             return True
         except Exception as e:
             print(f"Error deleting product: {e}")
@@ -129,7 +135,8 @@ class InventoryManager:
                 'selling_price': row['selling_price']
             })
         
-        conn.close()
+        if not os.environ.get('VERCEL'):
+            conn.close()
         return products
     
     def get_low_stock_alerts(self):
@@ -152,7 +159,8 @@ class InventoryManager:
                 'min_stock_level': row['min_stock_level']
             })
         
-        conn.close()
+        if not os.environ.get('VERCEL'):
+            conn.close()
         return alerts
     
     def export_to_excel(self):
@@ -189,3 +197,22 @@ class InventoryManager:
         except Exception as e:
             print(f"Error exporting to Excel: {e}")
             return None
+    
+    def _add_sample_data(self):
+        """Add sample data for Vercel"""
+        sample_products = [
+            ("WH001", "Wireless Headphones", "Electronics", 800, 1500, 45),
+            ("KB002", "Mechanical Keyboard", "Electronics", 1200, 2200, 23),
+            ("MS003", "Gaming Mouse", "Electronics", 600, 1100, 67),
+            ("CH004", "Phone Charger", "Accessories", 150, 350, 120),
+            ("CS005", "Phone Case", "Accessories", 100, 250, 8),
+            ("SP006", "Bluetooth Speaker", "Electronics", 900, 1800, 0),
+            ("CB007", "USB Cable", "Accessories", 50, 150, 200),
+            ("TB008", "Tablet Stand", "Accessories", 300, 650, 35)
+        ]
+        
+        for sku, name, category, cost, selling, stock in sample_products:
+            try:
+                self.add_product(sku, name, category, cost, selling, stock)
+            except:
+                pass  # Ignore duplicates

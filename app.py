@@ -11,8 +11,17 @@ app = Flask(__name__)
 app.secret_key = 'moonhub_secret_key'
 CORS(app)
 
-# Initialize inventory manager
-inventory = InventoryManager()
+# Initialize inventory manager lazily
+inventory = None
+
+def get_inventory():
+    global inventory
+    if inventory is None:
+        inventory = InventoryManager()
+        # Add sample data for Vercel
+        if os.environ.get('VERCEL'):
+            add_sample_data()
+    return inventory
 
 @app.route('/')
 def index():
@@ -28,8 +37,9 @@ def dashboard():
 def get_dashboard_stats():
     """Get dashboard statistics"""
     try:
-        products = inventory.get_all_products()
-        low_stock = inventory.get_low_stock_alerts()
+        inv = get_inventory()
+        products = inv.get_all_products()
+        low_stock = inv.get_low_stock_alerts()
         
         total_products = len(products)
         total_value = sum(p['current_stock'] * p['cost_price'] for p in products)
@@ -59,7 +69,8 @@ def get_dashboard_stats():
 def get_inventory_data():
     """Get all inventory data"""
     try:
-        products = inventory.get_all_products()
+        inv = get_inventory()
+        products = inv.get_all_products()
         return jsonify(products)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -69,7 +80,8 @@ def add_product():
     """Add new product"""
     try:
         data = request.json
-        success = inventory.add_product(
+        inv = get_inventory()
+        success = inv.add_product(
             sku=data['sku'],
             name=data['name'],
             category=data['category'],
@@ -90,7 +102,8 @@ def update_stock():
     """Update stock levels"""
     try:
         data = request.json
-        success = inventory.update_stock(
+        inv = get_inventory()
+        success = inv.update_stock(
             sku=data['sku'],
             quantity=int(data['quantity']),
             movement_type=data['movement_type'],
@@ -109,7 +122,8 @@ def delete_product():
     """Delete product"""
     try:
         data = request.json
-        success = inventory.delete_product(data['sku'])
+        inv = get_inventory()
+        success = inv.delete_product(data['sku'])
         
         if success:
             return jsonify({'success': True, 'message': 'Product deleted successfully'})
@@ -122,7 +136,8 @@ def delete_product():
 def export_excel():
     """Export inventory to Excel"""
     try:
-        filepath = inventory.export_to_excel()
+        inv = get_inventory()
+        filepath = inv.export_to_excel()
         if filepath and os.path.exists(filepath):
             return send_file(filepath, as_attachment=True, download_name=os.path.basename(filepath))
         else:
@@ -134,7 +149,8 @@ def export_excel():
 def add_sample_data():
     """Add sample products if database is empty"""
     try:
-        products = inventory.get_all_products()
+        inv = get_inventory()
+        products = inv.get_all_products()
         if len(products) == 0:
             sample_products = [
                 ("WH001", "Wireless Headphones", "Electronics", 800, 1500, 45),
@@ -148,7 +164,7 @@ def add_sample_data():
             ]
             
             for sku, name, category, cost, selling, stock in sample_products:
-                inventory.add_product(sku, name, category, cost, selling, stock)
+                inv.add_product(sku, name, category, cost, selling, stock)
             
             print(f"✅ Added {len(sample_products)} sample products")
     except Exception as e:
@@ -156,6 +172,7 @@ def add_sample_data():
 
 if __name__ == '__main__':
     print("🌙 Starting MoonHub Inventory System...")
-    add_sample_data()
+    if not os.environ.get('VERCEL'):
+        add_sample_data()
     print("🚀 Server starting at http://localhost:8080")
     app.run(debug=True, host='0.0.0.0', port=8080)
