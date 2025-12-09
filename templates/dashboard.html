@@ -1702,14 +1702,14 @@
             showCustomPopup(
                 'fas fa-sign-out-alt',
                 'Confirm Logout',
-                'Are you sure you want to logout? Any unsaved changes will be lost.',
+                'Are you sure you want to logout?',
                 [
                     {
                         text: 'Yes, Logout',
                         class: 'popup-btn-primary',
                         action: () => {
                             hideCustomPopup();
-                            window.location.href = '/';
+                            window.location.href = '/logout';
                         }
                     },
                     {

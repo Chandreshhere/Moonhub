@@ -160,6 +160,11 @@ def export_excel():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/logout')
+def logout():
+    """Logout user"""
+    return render_template('dashboard.html')
+
 # Add sample data on startup
 def add_sample_data():
     """Add sample products if database is empty"""
