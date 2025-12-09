@@ -26,7 +26,7 @@ def get_inventory():
 @app.route('/')
 def index():
     """Home page"""
-    return render_template('dashboard.html')
+    return render_template('login.html')
 
 @app.route('/dashboard')
 def dashboard():
@@ -163,7 +163,7 @@ def export_excel():
 @app.route('/logout')
 def logout():
     """Logout user"""
-    return render_template('dashboard.html')
+    return render_template('login.html')
 
 # Add sample data on startup
 def add_sample_data():
