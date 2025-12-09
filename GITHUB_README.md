@@ -281,7 +281,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Documentation**: [Complete Project Report](PROJECT_REPORT.md)
 - **Issues**: [GitHub Issues](https://github.com/Chandreshhere/Moonhub/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/Chandreshhere/Moonhub/discussions)
-- **Email**: support@moonhub.com
+- **Email**: whoischandresh@gmail.com
 
 ## 🎯 Roadmap
 

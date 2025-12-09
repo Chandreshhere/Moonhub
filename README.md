@@ -496,7 +496,7 @@ fail2ban-client status
 - **Community Forum**: User discussions and Q&A
 - **Video Tutorials**: Step-by-step setup guides
 - **Live Chat**: Real-time technical support
-- **Email Support**: help@moonhub.com
+- **Email Support**: whoischandresh@gmail.com
 - **GitHub Issues**: Bug reports and feature requests
 
 ### Contributing
@@ -514,6 +514,6 @@ fail2ban-client status
 **Last Updated**: January 2025  
 **License**: MIT License  
 **Website**: https://moonhub.com  
-**Support**: help@moonhub.com  
+**Support**: whoischandresh@gmail.com  
 
 *Built with ❤️ for e-commerce sellers worldwide*
