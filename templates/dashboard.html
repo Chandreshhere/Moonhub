@@ -357,7 +357,15 @@
         }
 
         .navbar {
-            z-index: 10000 !important;
+            z-index: 1030 !important;
+        }
+        
+        .modal {
+            z-index: 1050 !important;
+        }
+        
+        .modal-backdrop {
+            z-index: 1040 !important;
         }
 
         .dropdown-menu {
@@ -366,13 +374,13 @@
             border-radius: 12px;
             backdrop-filter: blur(20px);
             box-shadow: 0 8px 32px rgba(111, 66, 193, 0.2);
-            z-index: 10001 !important;
+            z-index: 1035 !important;
             position: absolute !important;
         }
 
         .nav-item.dropdown {
             position: relative;
-            z-index: 10002 !important;
+            z-index: 1031 !important;
         }
 
         .dropdown-item {
@@ -399,7 +407,7 @@
             height: 100%;
             background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(10px);
-            z-index: 10000;
+            z-index: 1060 !important;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1532,7 +1540,50 @@
         }
 
         function exportToExcel() {
-            window.open('/api/export-excel', '_blank');
+            // Show loading message
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exporting...';
+            btn.disabled = true;
+            
+            fetch('/api/export-excel')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Export failed');
+                    }
+                    return response.blob();
+                })
+                .then(blob => {
+                    // Create download link
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `inventory_export_${new Date().toISOString().slice(0,10)}.xlsx`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    
+                    // Reset button
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    
+                    showCustomPopup(
+                        'fas fa-check-circle',
+                        'Export Successful',
+                        'Your inventory data has been exported to Excel.',
+                        [{
+                            text: 'OK',
+                            class: 'popup-btn-primary',
+                            action: hideCustomPopup
+                        }]
+                    );
+                })
+                .catch(error => {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    alert('Export failed: ' + error.message);
+                });
         }
 
         function showOrderModal() {

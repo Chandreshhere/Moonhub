@@ -20,17 +20,35 @@ app.secret_key = 'moonhub_production_key_2024'
 CORS(app)
 
 # Initialize inventory manager
+inventory_manager = None
 try:
     inventory_manager = InventoryManager()
+    print("✅ Inventory Manager initialized")
     # Add sample data if empty
-    inventory_data = inventory_manager.generate_inventory_report()
-    if len(inventory_data) == 0:
-        inventory_manager.add_product("SKU001", "Wireless Headphones", "Electronics", 500, 1200, 50)
-        inventory_manager.add_product("SKU002", "Phone Case", "Accessories", 50, 200, 100)
-        inventory_manager.add_product("SKU003", "USB Cable", "Electronics", 30, 150, 200)
+    try:
+        inventory_data = inventory_manager.generate_inventory_report()
+        if len(inventory_data) == 0:
+            inventory_manager.add_product("SKU001", "Wireless Headphones", "Electronics", 500, 1200, 50)
+            inventory_manager.add_product("SKU002", "Phone Case", "Accessories", 50, 200, 100)
+            inventory_manager.add_product("SKU003", "USB Cable", "Electronics", 30, 150, 200)
+            print("✅ Sample data added")
+    except Exception as e:
+        print(f"Warning: Could not add sample data: {e}")
 except Exception as e:
-    print(f"Error initializing inventory: {e}")
-    inventory_manager = None
+    print(f"❌ Error initializing inventory: {e}")
+    # Create a dummy manager to prevent None errors
+    class DummyManager:
+        def generate_inventory_report(self):
+            return []
+        def get_low_stock_alerts(self):
+            return []
+        def add_product(self, *args, **kwargs):
+            return False
+        def update_stock(self, *args, **kwargs):
+            return False
+        def export_to_excel(self, *args, **kwargs):
+            return None
+    inventory_manager = DummyManager()
 
 # Platform API configurations
 PLATFORM_CONFIGS = {
@@ -73,6 +91,9 @@ def platforms():
 def get_dashboard_stats():
     """Get dashboard statistics"""
     try:
+        if not inventory_manager:
+            return jsonify({'error': 'Database not initialized'}), 500
+        
         # Get inventory data
         inventory_data = inventory_manager.generate_inventory_report()
         low_stock_items = inventory_manager.get_low_stock_alerts()
@@ -101,6 +122,9 @@ def get_dashboard_stats():
 def get_inventory_data():
     """Get inventory data for table display"""
     try:
+        if not inventory_manager:
+            return jsonify({'error': 'Database not initialized'}), 500
+        
         inventory_data = inventory_manager.generate_inventory_report()
         return jsonify(inventory_data)
     except Exception as e:
@@ -110,6 +134,9 @@ def get_inventory_data():
 def get_low_stock_alerts():
     """Get low stock alerts"""
     try:
+        if not inventory_manager:
+            return jsonify({'error': 'Database not initialized'}), 500
+        
         alerts = inventory_manager.get_low_stock_alerts()
         return jsonify(alerts)
     except Exception as e:
@@ -136,6 +163,9 @@ def get_stock_chart():
 def add_product():
     """Add new product"""
     try:
+        if not inventory_manager:
+            return jsonify({'error': 'Database not initialized', 'success': False}), 500
+        
         data = request.json
         success = inventory_manager.add_product(
             sku=data['sku'],
@@ -194,6 +224,9 @@ def delete_product():
 def update_stock():
     """Update stock levels"""
     try:
+        if not inventory_manager:
+            return jsonify({'error': 'Database not initialized', 'success': False}), 500
+        
         data = request.json
         success = inventory_manager.update_stock(
             sku=data['sku'],
@@ -216,8 +249,38 @@ def update_stock():
 def export_excel():
     """Export inventory to Excel"""
     try:
-        filename = inventory_manager.export_to_excel()
-        return send_file(filename, as_attachment=True)
+        if not inventory_manager:
+            return jsonify({'error': 'Database not initialized'}), 500
+        
+        # Get all data
+        inventory_data = inventory_manager.generate_inventory_report()
+        
+        if not inventory_data:
+            return jsonify({'error': 'No data to export'}), 400
+        
+        # Generate Excel file
+        from openpyxl import Workbook
+        from datetime import datetime
+        import os
+        
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Inventory"
+        
+        # Add headers
+        headers = list(inventory_data[0].keys())
+        ws.append(headers)
+        
+        # Add data
+        for item in inventory_data:
+            ws.append([item[h] for h in headers])
+        
+        # Save to temp file
+        filename = f"inventory_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
+        filepath = os.path.join('/tmp', filename)
+        wb.save(filepath)
+        
+        return send_file(filepath, as_attachment=True, download_name=filename)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -296,6 +359,9 @@ def get_sales_report():
 def get_inventory_valuation():
     """Get inventory valuation report"""
     try:
+        if not inventory_manager:
+            return jsonify({'error': 'Database not initialized'}), 500
+        
         inventory_data = inventory_manager.generate_inventory_report()
         
         valuation_data = []
