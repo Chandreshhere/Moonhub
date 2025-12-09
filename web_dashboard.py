@@ -11,9 +11,9 @@ from datetime import datetime, timedelta
 from inventory_manager import InventoryManager
 import os
 import requests
-import sqlite3
 import random
 from werkzeug.security import generate_password_hash, check_password_hash
+from database import get_connection
 
 app = Flask(__name__)
 app.secret_key = 'moonhub_production_key_2024'
@@ -161,23 +161,26 @@ def delete_product():
         data = request.json
         sku = data.get('sku')
         
-        conn = sqlite3.connect(inventory_manager.db_path)
+        conn = get_connection()
         cursor = conn.cursor()
         
+        param = '%s' if os.environ.get('DATABASE_URL') else '?'
+        
         # Get product ID
-        cursor.execute('SELECT id FROM products WHERE sku = ?', (sku,))
+        cursor.execute(f'SELECT id FROM products WHERE sku = {param}', (sku,))
         result = cursor.fetchone()
         
         if not result:
+            conn.close()
             return jsonify({'error': 'Product not found', 'success': False}), 404
         
-        product_id = result[0]
+        product_id = result['id'] if isinstance(result, dict) else result[0]
         
         # Delete related records
-        cursor.execute('DELETE FROM platform_listings WHERE product_id = ?', (product_id,))
-        cursor.execute('DELETE FROM stock_movements WHERE product_id = ?', (product_id,))
-        cursor.execute('DELETE FROM orders WHERE product_id = ?', (product_id,))
-        cursor.execute('DELETE FROM products WHERE id = ?', (product_id,))
+        cursor.execute(f'DELETE FROM platform_listings WHERE product_id = {param}', (product_id,))
+        cursor.execute(f'DELETE FROM stock_movements WHERE product_id = {param}', (product_id,))
+        cursor.execute(f'DELETE FROM orders WHERE product_id = {param}', (product_id,))
+        cursor.execute(f'DELETE FROM products WHERE id = {param}', (product_id,))
         
         conn.commit()
         conn.close()
