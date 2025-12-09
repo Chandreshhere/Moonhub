@@ -4,7 +4,6 @@ Excel Template Generator for Inventory Management
 Creates automated Excel templates with formulas and formatting
 """
 
-import pandas as pd
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Border, Side, Alignment
 from openpyxl.formatting.rule import ColorScaleRule, CellIsRule

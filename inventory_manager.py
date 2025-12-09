@@ -4,13 +4,14 @@ Multi-Platform Inventory Management System
 Supports Amazon, Flipkart, Meesho, and other platforms
 """
 
-import pandas as pd
 import json
 import sqlite3
 from datetime import datetime, timedelta
 import requests
 from typing import Dict, List, Optional
 import logging
+from openpyxl import Workbook
+from openpyxl.styles import Font, PatternFill
 
 class InventoryManager:
     def __init__(self, db_path: str = "inventory.db"):
@@ -234,9 +235,10 @@ class InventoryManager:
             for row in results
         ]
     
-    def generate_inventory_report(self) -> pd.DataFrame:
+    def generate_inventory_report(self) -> List[Dict]:
         """Generate comprehensive inventory report"""
         conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
         
         query = '''
             SELECT 
@@ -254,47 +256,64 @@ class InventoryManager:
             GROUP BY p.id
         '''
         
-        df = pd.read_sql_query(query, conn)
+        cursor.execute(query)
+        columns = [desc[0] for desc in cursor.description]
+        results = [dict(zip(columns, row)) for row in cursor.fetchall()]
         conn.close()
         
-        return df
+        return results
     
     def export_to_excel(self, filename: str = None) -> str:
         """Export inventory data to Excel"""
         if not filename:
             filename = f"inventory_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
         
-        filepath = f"/Users/moon/Documents/inventory/{filename}"
+        filepath = filename
         
-        with pd.ExcelWriter(filepath, engine='openpyxl') as writer:
-            # Main inventory report
-            inventory_df = self.generate_inventory_report()
-            inventory_df.to_excel(writer, sheet_name='Inventory', index=False)
-            
-            # Low stock alerts
-            low_stock = self.get_low_stock_alerts()
-            if low_stock:
-                low_stock_df = pd.DataFrame(low_stock)
-                low_stock_df.to_excel(writer, sheet_name='Low Stock Alerts', index=False)
-            
-            # Platform listings
-            conn = sqlite3.connect(self.db_path)
-            platform_query = '''
-                SELECT 
-                    p.sku,
-                    p.name,
-                    pl.platform,
-                    pl.platform_sku,
-                    pl.platform_price,
-                    pl.stock_allocated,
-                    pl.is_active
-                FROM products p
-                JOIN platform_listings pl ON p.id = pl.product_id
-            '''
-            platform_df = pd.read_sql_query(platform_query, conn)
-            platform_df.to_excel(writer, sheet_name='Platform Listings', index=False)
-            conn.close()
+        wb = Workbook()
+        wb.remove(wb.active)
         
+        # Main inventory report
+        ws1 = wb.create_sheet('Inventory')
+        inventory_data = self.generate_inventory_report()
+        if inventory_data:
+            headers = list(inventory_data[0].keys())
+            ws1.append(headers)
+            for row in inventory_data:
+                ws1.append([row[h] for h in headers])
+        
+        # Low stock alerts
+        ws2 = wb.create_sheet('Low Stock Alerts')
+        low_stock = self.get_low_stock_alerts()
+        if low_stock:
+            headers = list(low_stock[0].keys())
+            ws2.append(headers)
+            for row in low_stock:
+                ws2.append([row[h] for h in headers])
+        
+        # Platform listings
+        ws3 = wb.create_sheet('Platform Listings')
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT 
+                p.sku,
+                p.name,
+                pl.platform,
+                pl.platform_sku,
+                pl.platform_price,
+                pl.stock_allocated,
+                pl.is_active
+            FROM products p
+            JOIN platform_listings pl ON p.id = pl.product_id
+        ''')
+        columns = [desc[0] for desc in cursor.description]
+        ws3.append(columns)
+        for row in cursor.fetchall():
+            ws3.append(row)
+        conn.close()
+        
+        wb.save(filepath)
         self.logger.info(f"Excel report exported: {filepath}")
         return filepath
 

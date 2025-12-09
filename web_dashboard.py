@@ -7,15 +7,12 @@ Flask-based web interface for real-time inventory monitoring
 from flask import Flask, render_template, request, jsonify, send_file, session, redirect, url_for
 from flask_cors import CORS
 import json
-import pandas as pd
 from datetime import datetime, timedelta
 from inventory_manager import InventoryManager
-import plotly.graph_objs as go
-import plotly.utils
 import os
 import requests
 import sqlite3
-import numpy as np
+import random
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
@@ -104,35 +101,18 @@ def get_low_stock_alerts():
 
 @app.route('/api/stock-chart')
 def get_stock_chart():
-    """Generate stock level chart"""
+    """Generate stock level chart data"""
     try:
-        inventory_df = inventory_manager.generate_inventory_report()
+        inventory_data = inventory_manager.generate_inventory_report()
         
-        # Create bar chart
-        fig = go.Figure(data=[
-            go.Bar(
-                x=inventory_df['sku'][:10],  # Top 10 products
-                y=inventory_df['current_stock'][:10],
-                name='Current Stock',
-                marker_color='lightblue'
-            ),
-            go.Bar(
-                x=inventory_df['sku'][:10],
-                y=inventory_df['min_stock_level'][:10],
-                name='Min Stock Level',
-                marker_color='red',
-                opacity=0.7
-            )
-        ])
+        # Return data for frontend charting
+        chart_data = {
+            'labels': [item['sku'] for item in inventory_data[:10]],
+            'current_stock': [item['current_stock'] for item in inventory_data[:10]],
+            'min_stock': [item['min_stock_level'] for item in inventory_data[:10]]
+        }
         
-        fig.update_layout(
-            title='Stock Levels vs Minimum Thresholds',
-            xaxis_title='Product SKU',
-            yaxis_title='Quantity',
-            barmode='group'
-        )
-        
-        return json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+        return jsonify(chart_data)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -241,17 +221,20 @@ def get_sales_report():
         end_date = request.args.get('end_date', datetime.now().strftime('%Y-%m-%d'))
         
         # Generate sample sales data
-        dates = pd.date_range(start=start_date, end=end_date, freq='D')
+        start = datetime.strptime(start_date, '%Y-%m-%d')
+        end = datetime.strptime(end_date, '%Y-%m-%d')
         sales_data = []
         
-        for date in dates:
+        current = start
+        while current <= end:
             daily_sales = {
-                'date': date.strftime('%Y-%m-%d'),
-                'orders': np.random.randint(5, 50),
-                'revenue': round(np.random.uniform(1000, 10000), 2),
-                'profit': round(np.random.uniform(200, 2000), 2)
+                'date': current.strftime('%Y-%m-%d'),
+                'orders': random.randint(5, 50),
+                'revenue': round(random.uniform(1000, 10000), 2),
+                'profit': round(random.uniform(200, 2000), 2)
             }
             sales_data.append(daily_sales)
+            current += timedelta(days=1)
         
         return jsonify(sales_data)
     except Exception as e:
@@ -292,11 +275,11 @@ def get_platform_performance():
         for platform in platforms:
             performance_data.append({
                 'platform': platform,
-                'orders': np.random.randint(10, 200),
-                'revenue': round(np.random.uniform(5000, 50000), 2),
-                'conversion_rate': round(np.random.uniform(2, 15), 2),
-                'avg_order_value': round(np.random.uniform(500, 2000), 2),
-                'return_rate': round(np.random.uniform(1, 8), 2)
+                'orders': random.randint(10, 200),
+                'revenue': round(random.uniform(5000, 50000), 2),
+                'conversion_rate': round(random.uniform(2, 15), 2),
+                'avg_order_value': round(random.uniform(500, 2000), 2),
+                'return_rate': round(random.uniform(1, 8), 2)
             })
         
         return jsonify(performance_data)
@@ -310,16 +293,19 @@ def handle_orders():
         try:
             # Generate sample order data
             orders = []
+            platforms = ['Amazon', 'Flipkart', 'Meesho']
+            statuses = ['Pending', 'Processing', 'Shipped', 'Delivered']
+            
             for i in range(20):
                 order = {
                     'order_id': f'ORD{1000 + i}',
-                    'platform': np.random.choice(['Amazon', 'Flipkart', 'Meesho']),
+                    'platform': random.choice(platforms),
                     'customer_name': f'Customer {i+1}',
                     'product_sku': f'SKU{100 + i}',
-                    'quantity': np.random.randint(1, 5),
-                    'amount': round(np.random.uniform(500, 5000), 2),
-                    'status': np.random.choice(['Pending', 'Processing', 'Shipped', 'Delivered']),
-                    'order_date': (datetime.now() - timedelta(days=np.random.randint(0, 30))).strftime('%Y-%m-%d')
+                    'quantity': random.randint(1, 5),
+                    'amount': round(random.uniform(500, 5000), 2),
+                    'status': random.choice(statuses),
+                    'order_date': (datetime.now() - timedelta(days=random.randint(0, 30))).strftime('%Y-%m-%d')
                 }
                 orders.append(order)
             
@@ -380,25 +366,31 @@ def get_analytics_charts():
     """Get analytics chart data"""
     try:
         # Sales trend chart
-        dates = pd.date_range(start=datetime.now() - timedelta(days=30), end=datetime.now(), freq='D')
+        dates = []
+        current = datetime.now() - timedelta(days=30)
+        end = datetime.now()
+        while current <= end:
+            dates.append(current.strftime('%Y-%m-%d'))
+            current += timedelta(days=1)
+        
         sales_trend = {
-            'dates': [d.strftime('%Y-%m-%d') for d in dates],
-            'sales': [round(np.random.uniform(1000, 8000), 2) for _ in dates],
-            'orders': [np.random.randint(5, 50) for _ in dates]
+            'dates': dates,
+            'sales': [round(random.uniform(1000, 8000), 2) for _ in dates],
+            'orders': [random.randint(5, 50) for _ in dates]
         }
         
         # Category distribution
         categories = ['Electronics', 'Accessories', 'Home & Garden', 'Fashion', 'Sports']
         category_data = {
             'categories': categories,
-            'values': [np.random.randint(50, 500) for _ in categories]
+            'values': [random.randint(50, 500) for _ in categories]
         }
         
         # Platform revenue
         platforms = ['Amazon', 'Flipkart', 'Meesho', 'Shopify', 'eBay']
         platform_revenue = {
             'platforms': platforms,
-            'revenue': [round(np.random.uniform(10000, 100000), 2) for _ in platforms]
+            'revenue': [round(random.uniform(10000, 100000), 2) for _ in platforms]
         }
         
         return jsonify({
@@ -408,9 +400,6 @@ def get_analytics_charts():
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
-# Import numpy for random data generation
-import numpy as np
 
 if __name__ == '__main__':
     app.run(debug=False, host='0.0.0.0', port=8080)
