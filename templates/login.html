@@ -404,6 +404,27 @@
                 alert('Invalid credentials. Use admin/admin123 for demo.');
             }
         });
+
+        // Add 3D interactive effects
+        document.addEventListener('mousemove', function(e) {
+            const container = document.querySelector('.login-container');
+            const rect = container.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const rotateX = (y - centerY) / 20;
+            const rotateY = (centerX - x) / 20;
+            
+            container.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+        });
+
+        document.addEventListener('mouseleave', function() {
+            const container = document.querySelector('.login-container');
+            container.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
+        });
     </script>
 </body>
 </html>
