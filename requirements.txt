@@ -1,57 +1,19 @@
-# MoonHub Inventory Management System - Production Requirements
-
-# Core Framework
 Flask==2.3.3
 Flask-CORS==4.0.0
-
-# Database & Data Processing
 pandas==2.1.1
 numpy==1.24.3
-sqlite3
-
-# Excel Operations
 openpyxl==3.1.2
 xlsxwriter==3.1.9
-
-# Data Visualization
 plotly==5.17.0
-
-# Security & Authentication
 Werkzeug==2.3.7
 cryptography==41.0.4
-
-# HTTP Requests & API Integration
 requests==2.31.0
 urllib3==2.0.4
-
-# Date & Time Handling
 python-dateutil==2.8.2
-
-# Email & Notifications
-smtplib
 email-validator==2.0.0
-
-# Scheduling & Automation
 schedule==1.2.0
 APScheduler==3.10.4
-
-# Environment & Configuration
 python-dotenv==1.0.0
-
-# Production Server
 gunicorn==21.2.0
 waitress==2.1.2
-
-# Logging & Monitoring
-logging
 psutil==5.9.5
-
-# File Operations
-pathlib
-os
-json
-csv
-
-# Development & Testing (Optional)
-pytest==7.4.2
-pytest-flask==1.2.0
