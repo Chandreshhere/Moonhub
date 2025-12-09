@@ -36,17 +36,17 @@ def dashboard():
 @app.route('/admin')
 def admin():
     """Admin page"""
-    return render_template('dashboard.html')
+    return render_template('admin.html')
 
 @app.route('/reports')
 def reports():
     """Reports page"""
-    return render_template('dashboard.html')
+    return render_template('reports.html')
 
 @app.route('/platforms')
 def platforms():
     """Platforms page"""
-    return render_template('dashboard.html')
+    return render_template('platforms.html')
 
 @app.route('/api/dashboard-stats')
 def get_dashboard_stats():

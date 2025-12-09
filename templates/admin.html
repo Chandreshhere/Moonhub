@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - MoonHub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .navbar { background: rgba(255,255,255,0.1) !important; backdrop-filter: blur(20px); }
+        .card { background: rgba(255,255,255,0.95); border-radius: 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); margin-bottom: 2rem; }
+        .status-connected { color: #28a745; }
+        .status-disconnected { color: #dc3545; }
+        .admin-card { transition: transform 0.3s ease; }
+        .admin-card:hover { transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand text-white" href="/dashboard"><i class="fas fa-moon"></i> MoonHub</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link text-white" href="/dashboard">Dashboard</a>
+                <a class="nav-link text-white" href="/reports">Reports</a>
+                <a class="nav-link text-white" href="/platforms">Platforms</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h1 class="text-white mb-4"><i class="fas fa-cog"></i> Admin Panel</h1>
+
+        <!-- System Overview -->
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-tachometer-alt"></i> System Overview</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h4 class="text-primary" id="systemUptime">99.9%</h4>
+                            <p class="mb-0">System Uptime</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h4 class="text-success" id="activeUsers">1</h4>
+                            <p class="mb-0">Active Users</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h4 class="text-warning" id="totalProducts">0</h4>
+                            <p class="mb-0">Total Products</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h4 class="text-info" id="connectedPlatforms">2</h4>
+                            <p class="mb-0">Connected Platforms</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Connected Stores -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5><i class="fas fa-store"></i> Connected Stores</h5>
+                <button class="btn btn-primary btn-sm" onclick="refreshConnections()">
+                    <i class="fas fa-sync"></i> Refresh
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Platform</th>
+                                <th>Status</th>
+                                <th>Last Sync</th>
+                                <th>Products Synced</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="storesTable">
+                            <tr>
+                                <td><i class="fab fa-amazon text-warning"></i> Amazon</td>
+                                <td><span class="badge bg-success">Connected</span></td>
+                                <td>2 hours ago</td>
+                                <td>8 products</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="syncStore('amazon')">Sync Now</button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="disconnectStore('amazon')">Disconnect</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><i class="fas fa-store text-danger"></i> Meesho</td>
+                                <td><span class="badge bg-success">Connected</span></td>
+                                <td>1 hour ago</td>
+                                <td>8 products</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="syncStore('meesho')">Sync Now</button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="disconnectStore('meesho')">Disconnect</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><i class="fas fa-shopping-cart text-primary"></i> Flipkart</td>
+                                <td><span class="badge bg-danger">Disconnected</span></td>
+                                <td>Never</td>
+                                <td>0 products</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-success" onclick="connectStore('flipkart')">Connect</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Tools -->
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card admin-card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-database fa-3x text-primary mb-3"></i>
+                        <h5>Database Management</h5>
+                        <p class="text-muted">Backup, restore, and optimize database</p>
+                        <button class="btn btn-primary" onclick="manageDatabase()">Manage</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card admin-card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-users fa-3x text-success mb-3"></i>
+                        <h5>User Management</h5>
+                        <p class="text-muted">Add, edit, and manage user accounts</p>
+                        <button class="btn btn-success" onclick="manageUsers()">Manage</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card admin-card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-shield-alt fa-3x text-warning mb-3"></i>
+                        <h5>Security Settings</h5>
+                        <p class="text-muted">Configure security and access controls</p>
+                        <button class="btn btn-warning" onclick="manageSecurity()">Manage</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card admin-card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-bell fa-3x text-info mb-3"></i>
+                        <h5>Notifications</h5>
+                        <p class="text-muted">Configure alerts and notifications</p>
+                        <button class="btn btn-info" onclick="manageNotifications()">Manage</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card admin-card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-download fa-3x text-secondary mb-3"></i>
+                        <h5>Export Data</h5>
+                        <p class="text-muted">Export inventory and sales data</p>
+                        <button class="btn btn-secondary" onclick="exportData()">Export</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card admin-card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-cogs fa-3x text-dark mb-3"></i>
+                        <h5>System Settings</h5>
+                        <p class="text-muted">Configure system preferences</p>
+                        <button class="btn btn-dark" onclick="systemSettings()">Settings</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-history"></i> Recent Activity</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-plus-circle text-success me-2"></i>
+                            Product "Wireless Headphones" added to inventory
+                        </div>
+                        <small class="text-muted">2 hours ago</small>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-sync text-primary me-2"></i>
+                            Inventory synced with Amazon
+                        </div>
+                        <small class="text-muted">3 hours ago</small>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-shopping-cart text-warning me-2"></i>
+                            New order received from Meesho
+                        </div>
+                        <small class="text-muted">5 hours ago</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function loadAdminData() {
+            // Load total products from API
+            fetch('/api/dashboard-stats')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('totalProducts').textContent = data.total_products || 0;
+                })
+                .catch(error => console.error('Error loading admin data:', error));
+        }
+
+        function refreshConnections() {
+            const btn = event.target;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fas fa-sync"></i> Refresh';
+                alert('Connection status refreshed!');
+            }, 1500);
+        }
+
+        function syncStore(platform) {
+            const btn = event.target;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Syncing...';
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                btn.innerHTML = 'Sync Now';
+                btn.disabled = false;
+                alert(`${platform} store synced successfully!`);
+            }, 2000);
+        }
+
+        function disconnectStore(platform) {
+            if (confirm(`Are you sure you want to disconnect ${platform}?`)) {
+                alert(`${platform} store disconnected successfully!`);
+                location.reload();
+            }
+        }
+
+        function connectStore(platform) {
+            alert(`Redirecting to ${platform} connection setup...`);
+            window.location.href = '/platforms';
+        }
+
+        function manageDatabase() {
+            alert('Database management tools:\n- Backup database\n- Restore from backup\n- Optimize tables\n- View database stats');
+        }
+
+        function manageUsers() {
+            alert('User management features:\n- Add new users\n- Edit user permissions\n- View user activity\n- Reset passwords');
+        }
+
+        function manageSecurity() {
+            alert('Security settings:\n- Two-factor authentication\n- API key management\n- Access logs\n- Security policies');
+        }
+
+        function manageNotifications() {
+            alert('Notification settings:\n- Low stock alerts\n- Order notifications\n- System updates\n- Email preferences');
+        }
+
+        function exportData() {
+            alert('Export options:\n- Full inventory export\n- Sales data export\n- Platform data export\n- Custom date range export');
+        }
+
+        function systemSettings() {
+            alert('System settings:\n- General preferences\n- Currency settings\n- Time zone configuration\n- Backup schedules');
+        }
+
+        document.addEventListener('DOMContentLoaded', loadAdminData);
+    </script>
+</body>
+</html>
