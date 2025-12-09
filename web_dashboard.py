@@ -252,34 +252,13 @@ def export_excel():
         if not inventory_manager:
             return jsonify({'error': 'Database not initialized'}), 500
         
-        # Get all data
-        inventory_data = inventory_manager.generate_inventory_report()
+        # Use the inventory manager's export function
+        filepath = inventory_manager.export_to_excel()
         
-        if not inventory_data:
-            return jsonify({'error': 'No data to export'}), 400
+        if not filepath or not os.path.exists(filepath):
+            return jsonify({'error': 'Failed to generate Excel file'}), 500
         
-        # Generate Excel file
-        from openpyxl import Workbook
-        from datetime import datetime
-        import os
-        
-        wb = Workbook()
-        ws = wb.active
-        ws.title = "Inventory"
-        
-        # Add headers
-        headers = list(inventory_data[0].keys())
-        ws.append(headers)
-        
-        # Add data
-        for item in inventory_data:
-            ws.append([item[h] for h in headers])
-        
-        # Save to temp file
-        filename = f"inventory_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
-        filepath = os.path.join('/tmp', filename)
-        wb.save(filepath)
-        
+        filename = os.path.basename(filepath)
         return send_file(filepath, as_attachment=True, download_name=filename)
     except Exception as e:
         return jsonify({'error': str(e)}), 500

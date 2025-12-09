@@ -125,21 +125,24 @@ class InventoryManager:
                            platform_price: float, stock_allocated: int = 0) -> bool:
         """Add product listing to a platform"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = get_connection()
             cursor = conn.cursor()
             
-            cursor.execute('SELECT id FROM products WHERE sku = ?', (sku,))
+            param = '%s' if os.environ.get('DATABASE_URL') else '?'
+            
+            cursor.execute(f'SELECT id FROM products WHERE sku = {param}', (sku,))
             result = cursor.fetchone()
             
             if not result:
                 self.logger.error(f"Product {sku} not found")
+                conn.close()
                 return False
             
-            product_id = result[0]
+            product_id = result['id'] if isinstance(result, dict) else result[0]
             
-            cursor.execute('''
+            cursor.execute(f'''
                 INSERT INTO platform_listings (product_id, platform, platform_sku, platform_price, stock_allocated)
-                VALUES (?, ?, ?, ?, ?)
+                VALUES ({param}, {param}, {param}, {param}, {param})
             ''', (product_id, platform, platform_sku, platform_price, stock_allocated))
             
             conn.commit()
