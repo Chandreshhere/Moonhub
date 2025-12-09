@@ -43,7 +43,7 @@ MoonHub is a comprehensive, automated inventory management system designed for o
 ### Option 1: One-Click Setup (Recommended)
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/moonhub-inventory.git
+git clone https://github.com/Chandreshhere/Moonhub.git
 cd moonhub-inventory
 
 # Install dependencies
@@ -59,7 +59,7 @@ python start_server.py
 ### Option 2: Docker Deployment
 ```bash
 # Clone and run with Docker
-git clone https://github.com/yourusername/moonhub-inventory.git
+git clone https://github.com/Chandreshhere/Moonhub.git
 cd moonhub-inventory
 
 docker-compose up -d
@@ -160,7 +160,7 @@ moonhub-inventory/
 
 1. **Clone the Repository**
    ```bash
-   git clone https://github.com/yourusername/moonhub-inventory.git
+   git clone https://github.com/Chandreshhere/Moonhub.git
    cd moonhub-inventory
    ```
 
@@ -279,8 +279,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🆘 Support
 
 - **Documentation**: [Complete Project Report](PROJECT_REPORT.md)
-- **Issues**: [GitHub Issues](https://github.com/yourusername/moonhub-inventory/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/moonhub-inventory/discussions)
+- **Issues**: [GitHub Issues](https://github.com/Chandreshhere/Moonhub/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/Chandreshhere/Moonhub/discussions)
 - **Email**: support@moonhub.com
 
 ## 🎯 Roadmap
@@ -299,7 +299,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## ⭐ Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=yourusername/moonhub-inventory&type=Date)](https://star-history.com/#yourusername/moonhub-inventory&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=Chandreshhere/Moonhub&type=Date)](https://star-history.com/#Chandreshhere/Moonhub&Date)
 
 ## 🙏 Acknowledgments
 
@@ -311,8 +311,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **🌙 MoonHub - Revolutionizing E-commerce Through Intelligent Inventory Management**
 
-[![GitHub stars](https://img.shields.io/github/stars/yourusername/moonhub-inventory.svg?style=social&label=Star)](https://github.com/yourusername/moonhub-inventory)
-[![GitHub forks](https://img.shields.io/github/forks/yourusername/moonhub-inventory.svg?style=social&label=Fork)](https://github.com/yourusername/moonhub-inventory/fork)
-[![GitHub watchers](https://img.shields.io/github/watchers/yourusername/moonhub-inventory.svg?style=social&label=Watch)](https://github.com/yourusername/moonhub-inventory)
+[![GitHub stars](https://img.shields.io/github/stars/Chandreshhere/Moonhub.svg?style=social&label=Star)](https://github.com/Chandreshhere/Moonhub)
+[![GitHub forks](https://img.shields.io/github/forks/Chandreshhere/Moonhub.svg?style=social&label=Fork)](https://github.com/Chandreshhere/Moonhub/fork)
+[![GitHub watchers](https://img.shields.io/github/watchers/Chandreshhere/Moonhub.svg?style=social&label=Watch)](https://github.com/Chandreshhere/Moonhub)
 
-*Made with 🌙 by [Your Name](https://github.com/yourusername)*
+*Made with 🌙 by [Chandresh](https://github.com/yourusername)*

@@ -5,7 +5,7 @@ Thank you for your interest in contributing to MoonHub! We welcome contributions
 ## 🤝 How to Contribute
 
 ### Reporting Issues
-- Use the [GitHub Issues](https://github.com/yourusername/moonhub-inventory/issues) page
+- Use the [GitHub Issues](https://github.com/Chandreshhere/Moonhub/issues) page
 - Search existing issues before creating a new one
 - Provide detailed information about the bug or feature request
 - Include steps to reproduce for bugs
@@ -22,7 +22,7 @@ Thank you for your interest in contributing to MoonHub! We welcome contributions
 ### Development Setup
 ```bash
 # Clone your fork
-git clone https://github.com/yourusername/moonhub-inventory.git
+git clone https://github.com/Chandreshhere/Moonhub.git
 cd moonhub-inventory
 
 # Install dependencies
@@ -91,8 +91,8 @@ Help improve our documentation by:
 
 ## 📞 Getting Help
 
-- Join our [Discussions](https://github.com/yourusername/moonhub-inventory/discussions)
-- Check existing [Issues](https://github.com/yourusername/moonhub-inventory/issues)
+- Join our [Discussions](https://github.com/Chandreshhere/Moonhub/discussions)
+- Check existing [Issues](https://github.com/Chandreshhere/Moonhub/issues)
 - Read the [Documentation](README.md)
 
 ## 🏆 Recognition
