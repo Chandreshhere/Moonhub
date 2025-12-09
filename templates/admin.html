@@ -56,16 +56,61 @@
         .status-disconnected { color: #dc3545; }
         .admin-card { transition: transform 0.3s ease; }
         .admin-card:hover { transform: translateY(-2px); }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .container { padding: 0 0.75rem; }
+            .navbar { padding: 0.75rem 0; }
+            .navbar-brand { font-size: 1.1rem; }
+            .navbar-nav {
+                background: rgba(255, 255, 255, 0.95);
+                border-radius: 12px;
+                padding: 1rem;
+                margin-top: 1rem;
+                box-shadow: 0 4px 20px rgba(111, 66, 193, 0.2);
+            }
+            .nav-link { font-size: 0.85rem; padding: 0.4rem 0.6rem; }
+            h1 { font-size: 1.75rem; }
+            .admin-card { margin-bottom: 1rem; }
+            .admin-card .card-body { padding: 1rem; }
+            .admin-card i { font-size: 2rem !important; }
+            .card-header h5 { font-size: 1rem; }
+            .table { font-size: 0.85rem; }
+            .table th, .table td { padding: 0.5rem 0.4rem; white-space: nowrap; }
+            .btn { font-size: 0.85rem; padding: 0.5rem 1rem; }
+        }
+        
+        @media (max-width: 576px) {
+            .navbar-brand { font-size: 1rem; }
+            h1 { font-size: 1.5rem; }
+            .admin-card i { font-size: 1.8rem !important; }
+            .table { font-size: 0.75rem; }
+            .btn { font-size: 0.8rem; }
+        }
     </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg">
         <div class="container">
             <a class="navbar-brand" href="/dashboard"><i class="fas fa-moon"></i> MoonHub</a>
-            <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="/dashboard">Dashboard</a>
-                <a class="nav-link" href="/reports">Reports</a>
-                <a class="nav-link" href="/platforms">Platforms</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" style="border: none; background: rgba(111, 66, 193, 0.1); padding: 0.5rem;">
+                <i class="fas fa-bars" style="color: #6f42c1; font-size: 1.2rem;"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="navbar-nav ms-auto">
+                    <a class="nav-link" href="/dashboard">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                    <a class="nav-link" href="/reports">
+                        <i class="fas fa-chart-bar"></i> Reports
+                    </a>
+                    <a class="nav-link" href="/platforms">
+                        <i class="fas fa-store"></i> Platforms
+                    </a>
+                    <a class="nav-link" href="#" onclick="window.location.href='/dashboard'; exportToExcel();">
+                        <i class="fas fa-download"></i> Export
+                    </a>
+                </div>
             </div>
         </div>
     </nav>

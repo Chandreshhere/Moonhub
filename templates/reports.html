@@ -54,16 +54,59 @@
         }
         .card { background: rgba(255,255,255,0.95); border-radius: 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
         .stat-card { background: linear-gradient(145deg, rgba(255,255,255,0.9), rgba(255,255,255,0.8)); border-radius: 15px; padding: 1.5rem; margin-bottom: 1rem; }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .container { padding: 0 0.75rem; }
+            .navbar { padding: 0.75rem 0; }
+            .navbar-brand { font-size: 1.1rem; }
+            .navbar-nav {
+                background: rgba(255, 255, 255, 0.95);
+                border-radius: 12px;
+                padding: 1rem;
+                margin-top: 1rem;
+                box-shadow: 0 4px 20px rgba(111, 66, 193, 0.2);
+            }
+            .nav-link { font-size: 0.85rem; padding: 0.4rem 0.6rem; }
+            h1 { font-size: 1.75rem; }
+            .stat-card { padding: 1rem; margin-bottom: 0.75rem; }
+            .stat-card h3 { font-size: 1.5rem; }
+            .card-header h5 { font-size: 1rem; }
+            .table { font-size: 0.85rem; }
+            .table th, .table td { padding: 0.5rem 0.4rem; white-space: nowrap; }
+        }
+        
+        @media (max-width: 576px) {
+            .navbar-brand { font-size: 1rem; }
+            h1 { font-size: 1.5rem; }
+            .stat-card { padding: 0.75rem; }
+            .stat-card h3 { font-size: 1.3rem; }
+            .table { font-size: 0.75rem; }
+        }
     </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg">
         <div class="container">
             <a class="navbar-brand" href="/dashboard"><i class="fas fa-moon"></i> MoonHub</a>
-            <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="/dashboard">Dashboard</a>
-                <a class="nav-link" href="/platforms">Platforms</a>
-                <a class="nav-link" href="/admin">Admin</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" style="border: none; background: rgba(111, 66, 193, 0.1); padding: 0.5rem;">
+                <i class="fas fa-bars" style="color: #6f42c1; font-size: 1.2rem;"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="navbar-nav ms-auto">
+                    <a class="nav-link" href="/dashboard">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                    <a class="nav-link" href="/platforms">
+                        <i class="fas fa-store"></i> Platforms
+                    </a>
+                    <a class="nav-link" href="/admin">
+                        <i class="fas fa-cog"></i> Admin
+                    </a>
+                    <a class="nav-link" href="#" onclick="window.location.href='/dashboard'; exportToExcel();">
+                        <i class="fas fa-download"></i> Export
+                    </a>
+                </div>
             </div>
         </div>
     </nav>
