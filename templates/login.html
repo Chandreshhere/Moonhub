@@ -396,12 +396,12 @@
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             
-            // Simple authentication (replace with real authentication)
-            if (username === 'admin' && password === 'admin123') {
+            // Allow any login - no authentication required
+            if (username && password) {
                 // Redirect to dashboard
                 window.location.href = '/dashboard';
             } else {
-                alert('Invalid credentials. Use admin/admin123 for demo.');
+                alert('Please enter username and password.');
             }
         });
 
